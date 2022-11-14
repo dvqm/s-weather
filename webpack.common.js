@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const json5 = require('json5');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   entry: './src/index.js',
@@ -9,6 +10,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: 'Weather app',
     }),
+    new Dotenv(),
   ],
 
   output: {
