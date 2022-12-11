@@ -1,45 +1,71 @@
-const weatherData = async (city) => {
-  const url = 'https://api.openweathermap.org/data/2.5';
+const URL_DATA_V25 = 'https://api.openweathermap.org/data/2.5';
 
-  const curReq = await fetch(
-    `${url}/weather?q=${city}&appid=${process.env.WEATHER_API_KEY}`,
-    {
-      mode: 'cors',
-    },
-  );
+const URL_GEO_V10 = 'https://api.openweathermap.org/geo/1.0';
 
-  const curResp = await curReq.json();
+export const LocationByCoords = async (coords) => {
+  const lat = coords.latitude;
 
-  const { lat, lon } = curResp.coord;
+  const lon = coords.longitude;
 
-  const forReq = await fetch(
-    `${url}/onecall?lat=${lat}&lon=${lon}&exclude=minutely&appid=${process.env.WEATHER_API_KEY}`,
+  const request = await fetch(
+    `${URL_GEO_V10}/reverse?lat=${lat}&lon=${lon}&appid=${process.env.WEATHER_API_KEY}`,
     { mode: 'cors' },
   );
 
-  const forResp = await forReq.json();
+  const response = await request.json();
+
+  return response;
+};
+
+export const LookDuplicates = async (cityName) => {
+  const request = await fetch(
+    `${URL_GEO_V10}/direct?q=${cityName}&limit=10&appid=${process.env.WEATHER_API_KEY}`,
+    { mode: 'cors' },
+  );
+
+  const response = await request.json();
+
+  return response;
+};
+
+export const LocationByName = async (cityData) => {
+  const state = cityData.state ? `,${cityData.state}` : '';
+
+  const request = await fetch(
+    `${URL_DATA_V25}/weather?q=${cityData.name},${cityData.country}${state}&appid=${process.env.WEATHER_API_KEY}`,
+    { mode: 'cors' },
+  );
+
+  const response = await request.json();
+
+  const forecastRequest = await fetch(
+    `${URL_DATA_V25}/onecall?lat=${cityData.lat}&lon=${cityData.lon}&exclude=minutely&appid=${process.env.WEATHER_API_KEY}`,
+    { mode: 'cors' },
+  );
+
+  const forecastResponse = await forecastRequest.json();
 
   const data = {};
 
-  data.coord = curResp.coord;
+  data.coord = response.coord;
 
-  data.main = curResp.main;
+  data.main = response.main;
 
-  data.wind = curResp.wind;
+  data.wind = response.wind;
 
-  data.sys = curResp.sys;
+  data.sys = response.sys;
 
-  data.name = curResp.name;
+  data.name = response.name;
 
-  data.country = curResp.sys.country;
+  data.country = response.sys.country;
 
-  const [weather] = curResp.weather;
+  const [weather] = response.weather;
 
   data.weather = weather;
 
-  data.weather.icon = `http://openweathermap.org/img/wn/${curResp.weather[0].icon}@2x.png`;
+  data.weather.icon = `http://openweathermap.org/img/wn/${response.weather[0].icon}@2x.png`;
 
-  data.forecast = forResp;
+  data.forecast = forecastResponse;
 
   const setUrl = (array) => {
     array.forEach((card) => {
@@ -55,5 +81,3 @@ const weatherData = async (city) => {
 
   return data;
 };
-
-export default weatherData;
