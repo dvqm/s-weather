@@ -1,4 +1,8 @@
-const contentCreator = (ui, data) => {
+import uiCreator from './uiCreator';
+
+const uiCreate = uiCreator();
+
+const contentCreator = () => {
   const getRef = (name, obj) => {
     let result;
 
@@ -51,7 +55,7 @@ const contentCreator = (ui, data) => {
   };
 
   return {
-    mainPage(blank) {
+    mainPage(blank, data) {
       const setDateTime = () => {
         const d = new Date();
 
@@ -143,139 +147,194 @@ const contentCreator = (ui, data) => {
 
       return blank;
     },
-    hourlyCard() {
-      const hourly = { ui: structuredClone(ui.hourlyForecast) };
+    hourlyCard(data) {
+      const hourly = {
+        tag: 'div',
+        className: 'hourly dispRow',
+        c: {
+          previous: {
+            tag: 'button',
+            id: 'hourlyPrev',
+            className: 'prevBtn',
+          },
+          wrapper: {
+            tag: 'div',
+            className: 'cards',
+            id: 'hourlyCards',
+            c: {},
+          },
+          next: {
+            tag: 'button',
+            id: 'hourlyNext',
+            className: 'nextBtn',
+          },
+        },
+      };
 
-      const f = data.forecast;
+      const { forecast } = data;
+      forecast.hourly.forEach((ticket, i) => {
+        const temp = '<sup>0</sup>C,';
 
-      const card = getRef('hourlyCard', hourly);
+        const card = {
+          tag: 'div',
+          className: 'card',
+          c: {
+            hour: {
+              tag: 'time',
+              textContent: convertTime(ticket.dt, 'whm'),
+            },
+            icon: {
+              tag: 'img',
+              src: ticket.weather[0].icon,
+              icon: ticket.weather[0].description,
+            },
+            descr: {
+              tag: 'span',
+              textContent: ticket.weather[0].main,
+            },
+            temperature: {
+              tag: 'span',
+              innerHTML: `${k2c(ticket.temp)} ${temp}`,
+            },
+            pressure: {
+              tag: 'span',
+              textContent: `${ticket.pressure} hPa`,
+            },
+            humidity: {
+              tag: 'span',
+              textContent: `${ticket.humidity} %`,
+            },
+            windSpeed: {
+              tag: 'span',
+              textContent: `${ticket.wind_speed} m/s`,
+            },
+            deg: {
+              tag: 'span',
+              textContent: `${ticket.wind_deg} deg.`,
+            },
+          },
+        };
 
-      const cards = hourly.ui.c.wrapper.c;
-
-      delete hourly.ui.c.wrapper.c.hourlyCard;
-
-      f.hourly.map((ticket, i) => {
-        const cardRef = structuredClone(card);
-
-        const key = `h${i + 1}`;
-
-        const hour = getRef('hour', cardRef);
-
-        hour.textContent = convertTime(ticket.dt, 'whm');
-
-        const icon = getRef('icon', cardRef);
-
-        icon.src = ticket.weather[0].icon;
-
-        icon.alt = ticket.weather[0].description;
-
-        const descr = getRef('descr', cardRef);
-
-        descr.textContent = ticket.weather[0].main;
-
-        const temp = getRef('temperature', cardRef);
-
-        temp.innerHTML = `${k2c(ticket.temp)} ${temp.s}`;
-
-        const pressure = getRef('pressure', cardRef);
-
-        pressure.textContent = `${ticket.pressure} hPa`;
-
-        const humidity = getRef('humidity', cardRef);
-
-        humidity.textContent = `${ticket.humidity} %`;
-
-        const windSpeed = getRef('windSpeed', cardRef);
-
-        windSpeed.textContent = `${ticket.wind_speed} m/s`;
-
-        const deg = getRef('deg', cardRef);
-
-        deg.textContent = `${ticket.wind_deg} deg.`;
-
-        cards[key] = cardRef;
-
-        return cards[key];
+        hourly.c.wrapper.c[`h${i + 1}`] = card;
       });
 
       return hourly;
     },
-    dailyCard() {
-      const daily = { ui: structuredClone(ui.dailyForecast) };
+    dailyCard(data) {
+      const daily = {
+        tag: 'div',
+        className: 'daily dispRow',
+        c: {
+          previous: {
+            tag: 'button',
+            id: 'dailyPrev',
+            className: 'prevBtn',
+          },
+          wrapper: {
+            tag: 'div',
+            className: 'cards',
+            id: 'dailyCards',
+            c: {},
+          },
+          next: {
+            tag: 'button',
+            id: 'dailyNext',
+            className: 'nextBtn',
+          },
+        },
+      };
 
-      const f = data.forecast;
+      const { forecast } = data;
 
-      const card = getRef('dailyCard', daily);
-
-      const cards = daily.ui.c.wrapper.c;
-
-      delete daily.ui.c.wrapper.c.dailyCard;
-
-      f.daily.map((ticket, i) => {
-        const cardRef = structuredClone(card);
-
-        const key = `d${i + 1}`;
-
-        const date = getRef('date', cardRef);
-
-        date.textContent = convertTime(ticket.dt, 'dw');
-
-        const icon = getRef('icon', cardRef);
-
-        icon.src = ticket.weather[0].icon;
-
-        icon.alt = ticket.weather[0].description;
-
-        const descr = getRef('descr', cardRef);
-
-        descr.textContent = ticket.weather[0].description;
-
-        const sunrise = getRef('sunrise', cardRef);
-
-        sunrise.textContent = convertTime(ticket.sunrise, 'hm');
-
-        const sunset = getRef('sunset', cardRef);
-
-        sunset.textContent = convertTime(ticket.sunset, 'hm');
-
-        const temp = getRef('temperatures', cardRef).c;
-
+      forecast.daily.forEach((ticket, i) => {
         const degIcon = '<sup>0</sup>';
 
-        temp.morning.innerHTML = `${k2c(ticket.temp.morn)} ${degIcon}`;
+        const card = {
+          tag: 'div',
+          className: 'card',
+          c: {
+            date: {
+              tag: 'time',
+              textContent: convertTime(ticket.dt, 'dw'),
+            },
+            icon: {
+              tag: 'img',
+              src: ticket.weather[0].icon,
+              alt: ticket.weather[0].description,
+            },
+            descr: {
+              tag: 'span',
+              textContent: ticket.weather[0].description,
+            },
+            sun: {
+              tag: 'div',
+              className: 'sun',
+              c: {
+                sunrise: {
+                  tag: 'time',
+                  textContent: convertTime(ticket.sunrise, 'hm'),
+                },
+                sunset: {
+                  tag: 'time',
+                  textContent: convertTime(ticket.sunset, 'hm'),
+                },
+              },
+            },
+            temperatures: {
+              tag: 'div',
+              className: 'predict',
+              c: {
+                morning: {
+                  tag: 'span',
+                  innerHTML: `${k2c(ticket.temp.morn)} ${degIcon}`,
+                },
+                day: {
+                  tag: 'span',
+                  innerHTML: `${k2c(ticket.temp.day)} ${degIcon}`,
+                },
+                evening: {
+                  tag: 'span',
+                  innerHTML: `${k2c(ticket.temp.eve)} ${degIcon}`,
+                },
+                night: {
+                  tag: 'span',
+                  innerHTML: `${k2c(ticket.temp.night)} ${degIcon}`,
+                },
+              },
+            },
+            otherData: {
+              tag: 'div',
+              className: 'other',
+              c: {
+                pressure: {
+                  tag: 'span',
+                  textContent: `${ticket.pressure} hPa`,
+                },
+                humidity: {
+                  tag: 'span',
+                  textContent: `${ticket.humidity} %`,
+                },
+                windSpeed: {
+                  tag: 'span',
+                  textContent: `${ticket.wind_speed} m/s`,
+                },
+                deg: {
+                  tag: 'span',
+                  textContent: `${ticket.wind_deg} deg.`,
+                },
+                uvi: {
+                  tag: 'span',
+                  textContent: ticket.uvi,
+                },
+              },
+            },
+          },
+        };
 
-        temp.day.innerHTML = `${k2c(ticket.temp.day)} ${degIcon}`;
-
-        temp.evening.innerHTML = `${k2c(ticket.temp.eve)} ${degIcon}`;
-
-        temp.night.innerHTML = `${k2c(ticket.temp.night)} ${degIcon}`;
-
-        const humidity = getRef('humidity', cardRef);
-
-        humidity.textContent = `${ticket.humidity} %`;
-
-        const pressure = getRef('pressure', cardRef);
-
-        pressure.textContent = `${ticket.pressure} hPa`;
-
-        const windSpeed = getRef('windSpeed', cardRef);
-
-        windSpeed.textContent = `${ticket.wind_speed} m/s`;
-
-        const deg = getRef('deg', cardRef);
-
-        deg.textContent = `${ticket.wind_deg} deg.`;
-
-        const uvi = getRef('uvi', cardRef);
-
-        uvi.textContent = ticket.uvi;
-
-        cards[key] = cardRef;
-
-        return cards[key];
+        daily.c.wrapper.c[`d${i + 1}`] = card;
       });
 
-      return daily;
+      return uiCreate.node(daily);
     },
     manualInput() {
       const model = {
@@ -300,9 +359,9 @@ const contentCreator = (ui, data) => {
         },
       };
 
-      return model;
+      return uiCreate.node(model);
     },
-    citiesList() {
+    citiesList(data) {
       const list = {
         tag: 'div',
         c: {
@@ -346,7 +405,7 @@ const contentCreator = (ui, data) => {
         list.c.ul.c[index] = li;
       });
 
-      return list;
+      return uiCreate.node(list);
     },
     errorMessage(text) {
       const model = {
@@ -355,7 +414,7 @@ const contentCreator = (ui, data) => {
         textContent: text,
       };
 
-      return model;
+      return uiCreate.node(model);
     },
   };
 };
