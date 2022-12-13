@@ -50,325 +50,313 @@ const contentCreator = (ui, data) => {
     return string;
   };
 
-  const mainPage = (blank) => {
-    const setDateTime = () => {
-      const d = new Date();
+  return {
+    mainPage(blank) {
+      const setDateTime = () => {
+        const d = new Date();
 
-      const { date } = getRef('currentDate', blank).c;
+        const { date } = getRef('currentDate', blank).c;
 
-      const { time } = getRef('currentDate', blank).c;
+        const { time } = getRef('currentDate', blank).c;
 
-      const mNames = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ];
+        const mNames = [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
 
-      const days = [
-        'Sunday',
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-      ];
+        const days = [
+          'Sunday',
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+        ];
 
-      date.textContent = `
+        date.textContent = `
       ${d.getDate()} 
       ${mNames[d.getMonth()]} 
       ${d.getFullYear()}
       `;
 
-      time.textContent = `
+        time.textContent = `
       ${days[d.getDay()]} 
       ${add0(d, 'getHours')} : 
       ${add0(d, 'getMinutes')}
       `;
-    };
+      };
 
-    setDateTime();
+      setDateTime();
 
-    const city = getRef('cityName', blank);
+      const city = getRef('cityName', blank);
 
-    city.textContent = `${data.name} ${data.country}`;
+      city.textContent = `${data.name} ${data.country}`;
 
-    const skyImg = getRef('skyImg', blank);
+      const skyImg = getRef('skyImg', blank);
 
-    skyImg.src = data.weather.icon;
+      skyImg.src = data.weather.icon;
 
-    skyImg.alt = data.weather.description;
+      skyImg.alt = data.weather.description;
 
-    const sky = getRef('sky', blank);
+      const sky = getRef('sky', blank);
 
-    sky.textContent = data.weather.description;
+      sky.textContent = data.weather.description;
 
-    const current = getRef('current', blank);
+      const current = getRef('current', blank);
 
-    current.textContent = k2c(data.main.temp);
+      current.textContent = k2c(data.main.temp);
 
-    const t = getRef('temperatures', blank).c;
+      const t = getRef('temperatures', blank).c;
 
-    t.feelsLike.textContent = `feels like: ${k2c(data.main.feels_like)}`;
+      t.feelsLike.textContent = `feels like: ${k2c(data.main.feels_like)}`;
 
-    t.minimal.textContent = `min: ${k2c(data.main.temp_min)}`;
+      t.minimal.textContent = `min: ${k2c(data.main.temp_min)}`;
 
-    t.maximal.textContent = `max: ${k2c(data.main.temp_max)}`;
+      t.maximal.textContent = `max: ${k2c(data.main.temp_max)}`;
 
-    const o = getRef('otherData', blank).c;
+      const o = getRef('otherData', blank).c;
 
-    o.humidity.textContent = `${data.main.humidity} %`;
+      o.humidity.textContent = `${data.main.humidity} %`;
 
-    o.pressure.textContent = `${data.main.pressure} hPa`;
+      o.pressure.textContent = `${data.main.pressure} hPa`;
 
-    o.windSpeed.textContent = `${data.wind.speed} m/s`;
+      o.windSpeed.textContent = `${data.wind.speed} m/s`;
 
-    o.deg.textContent = `${data.wind.deg} deg.`;
+      o.deg.textContent = `${data.wind.deg} deg.`;
 
-    const sun = getRef('sun', blank).c;
+      const sun = getRef('sun', blank).c;
 
-    sun.sunrise.c.time.textContent = convertTime(data.sys.sunrise, 'hm');
+      sun.sunrise.c.time.textContent = convertTime(data.sys.sunrise, 'hm');
 
-    sun.sunset.c.time.textContent = convertTime(data.sys.sunset, 'hm');
+      sun.sunset.c.time.textContent = convertTime(data.sys.sunset, 'hm');
 
-    return blank;
-  };
+      return blank;
+    },
+    hourlyCard() {
+      const hourly = { ui: structuredClone(ui.hourlyForecast) };
 
-  const hourlyCard = () => {
-    const hourly = { ui: structuredClone(ui.hourlyForecast) };
+      const f = data.forecast;
 
-    const f = data.forecast;
+      const card = getRef('hourlyCard', hourly);
 
-    const card = getRef('hourlyCard', hourly);
+      const cards = hourly.ui.c.wrapper.c;
 
-    const cards = hourly.ui.c.wrapper.c;
+      delete hourly.ui.c.wrapper.c.hourlyCard;
 
-    delete hourly.ui.c.wrapper.c.hourlyCard;
+      f.hourly.map((ticket, i) => {
+        const cardRef = structuredClone(card);
 
-    f.hourly.map((ticket, i) => {
-      const cardRef = structuredClone(card);
+        const key = `h${i + 1}`;
 
-      const key = `h${i + 1}`;
+        const hour = getRef('hour', cardRef);
 
-      const hour = getRef('hour', cardRef);
+        hour.textContent = convertTime(ticket.dt, 'whm');
 
-      hour.textContent = convertTime(ticket.dt, 'whm');
+        const icon = getRef('icon', cardRef);
 
-      const icon = getRef('icon', cardRef);
+        icon.src = ticket.weather[0].icon;
 
-      icon.src = ticket.weather[0].icon;
+        icon.alt = ticket.weather[0].description;
 
-      icon.alt = ticket.weather[0].description;
+        const descr = getRef('descr', cardRef);
 
-      const descr = getRef('descr', cardRef);
+        descr.textContent = ticket.weather[0].main;
 
-      descr.textContent = ticket.weather[0].main;
+        const temp = getRef('temperature', cardRef);
 
-      const temp = getRef('temperature', cardRef);
+        temp.innerHTML = `${k2c(ticket.temp)} ${temp.s}`;
 
-      temp.innerHTML = `${k2c(ticket.temp)} ${temp.s}`;
+        const pressure = getRef('pressure', cardRef);
 
-      const pressure = getRef('pressure', cardRef);
+        pressure.textContent = `${ticket.pressure} hPa`;
 
-      pressure.textContent = `${ticket.pressure} hPa`;
+        const humidity = getRef('humidity', cardRef);
 
-      const humidity = getRef('humidity', cardRef);
+        humidity.textContent = `${ticket.humidity} %`;
 
-      humidity.textContent = `${ticket.humidity} %`;
+        const windSpeed = getRef('windSpeed', cardRef);
 
-      const windSpeed = getRef('windSpeed', cardRef);
+        windSpeed.textContent = `${ticket.wind_speed} m/s`;
 
-      windSpeed.textContent = `${ticket.wind_speed} m/s`;
+        const deg = getRef('deg', cardRef);
 
-      const deg = getRef('deg', cardRef);
+        deg.textContent = `${ticket.wind_deg} deg.`;
 
-      deg.textContent = `${ticket.wind_deg} deg.`;
+        cards[key] = cardRef;
 
-      cards[key] = cardRef;
+        return cards[key];
+      });
 
-      return cards[key];
-    });
+      return hourly;
+    },
+    dailyCard() {
+      const daily = { ui: structuredClone(ui.dailyForecast) };
 
-    return hourly;
-  };
+      const f = data.forecast;
 
-  const dailyCard = () => {
-    const daily = { ui: structuredClone(ui.dailyForecast) };
+      const card = getRef('dailyCard', daily);
 
-    const f = data.forecast;
+      const cards = daily.ui.c.wrapper.c;
 
-    const card = getRef('dailyCard', daily);
+      delete daily.ui.c.wrapper.c.dailyCard;
 
-    const cards = daily.ui.c.wrapper.c;
+      f.daily.map((ticket, i) => {
+        const cardRef = structuredClone(card);
 
-    delete daily.ui.c.wrapper.c.dailyCard;
+        const key = `d${i + 1}`;
 
-    f.daily.map((ticket, i) => {
-      const cardRef = structuredClone(card);
+        const date = getRef('date', cardRef);
 
-      const key = `d${i + 1}`;
+        date.textContent = convertTime(ticket.dt, 'dw');
 
-      const date = getRef('date', cardRef);
+        const icon = getRef('icon', cardRef);
 
-      date.textContent = convertTime(ticket.dt, 'dw');
+        icon.src = ticket.weather[0].icon;
 
-      const icon = getRef('icon', cardRef);
+        icon.alt = ticket.weather[0].description;
 
-      icon.src = ticket.weather[0].icon;
+        const descr = getRef('descr', cardRef);
 
-      icon.alt = ticket.weather[0].description;
+        descr.textContent = ticket.weather[0].description;
 
-      const descr = getRef('descr', cardRef);
+        const sunrise = getRef('sunrise', cardRef);
 
-      descr.textContent = ticket.weather[0].description;
+        sunrise.textContent = convertTime(ticket.sunrise, 'hm');
 
-      const sunrise = getRef('sunrise', cardRef);
+        const sunset = getRef('sunset', cardRef);
 
-      sunrise.textContent = convertTime(ticket.sunrise, 'hm');
+        sunset.textContent = convertTime(ticket.sunset, 'hm');
 
-      const sunset = getRef('sunset', cardRef);
+        const temp = getRef('temperatures', cardRef).c;
 
-      sunset.textContent = convertTime(ticket.sunset, 'hm');
+        const degIcon = '<sup>0</sup>';
 
-      const temp = getRef('temperatures', cardRef).c;
+        temp.morning.innerHTML = `${k2c(ticket.temp.morn)} ${degIcon}`;
 
-      const degIcon = '<sup>0</sup>';
+        temp.day.innerHTML = `${k2c(ticket.temp.day)} ${degIcon}`;
 
-      temp.morning.innerHTML = `${k2c(ticket.temp.morn)} ${degIcon}`;
+        temp.evening.innerHTML = `${k2c(ticket.temp.eve)} ${degIcon}`;
 
-      temp.day.innerHTML = `${k2c(ticket.temp.day)} ${degIcon}`;
+        temp.night.innerHTML = `${k2c(ticket.temp.night)} ${degIcon}`;
 
-      temp.evening.innerHTML = `${k2c(ticket.temp.eve)} ${degIcon}`;
+        const humidity = getRef('humidity', cardRef);
 
-      temp.night.innerHTML = `${k2c(ticket.temp.night)} ${degIcon}`;
+        humidity.textContent = `${ticket.humidity} %`;
 
-      const humidity = getRef('humidity', cardRef);
+        const pressure = getRef('pressure', cardRef);
 
-      humidity.textContent = `${ticket.humidity} %`;
+        pressure.textContent = `${ticket.pressure} hPa`;
 
-      const pressure = getRef('pressure', cardRef);
+        const windSpeed = getRef('windSpeed', cardRef);
 
-      pressure.textContent = `${ticket.pressure} hPa`;
+        windSpeed.textContent = `${ticket.wind_speed} m/s`;
 
-      const windSpeed = getRef('windSpeed', cardRef);
+        const deg = getRef('deg', cardRef);
 
-      windSpeed.textContent = `${ticket.wind_speed} m/s`;
+        deg.textContent = `${ticket.wind_deg} deg.`;
 
-      const deg = getRef('deg', cardRef);
+        const uvi = getRef('uvi', cardRef);
 
-      deg.textContent = `${ticket.wind_deg} deg.`;
+        uvi.textContent = ticket.uvi;
 
-      const uvi = getRef('uvi', cardRef);
+        cards[key] = cardRef;
 
-      uvi.textContent = ticket.uvi;
+        return cards[key];
+      });
 
-      cards[key] = cardRef;
-
-      return cards[key];
-    });
-
-    return daily;
-  };
-
-  const manualInput = () => {
-    const model = {
-      tag: 'label',
-      className: 'city',
-      c: {
-        title: {
-          tag: 'span',
-          textContent: 'Please, enter a city name',
-        },
-        cityInput: {
-          tag: 'input',
-          type: 'text',
-          className: 'cityInput',
-          id: 'cityInput',
-        },
-        submitBtn: {
-          tag: 'button',
-          id: 'submitBtn',
-          textContent: 'Ok',
-        },
-      },
-    };
-
-    return model;
-  };
-
-  const citiesList = () => {
-    const list = {
-      tag: 'div',
-      c: {
-        ul: {
-          tag: 'ul',
-          className: 'list',
-          c: {},
-        },
-        backLayer: {
-          tag: 'div',
-          className: 'backLayer',
-        },
-      },
-    };
-
-    data.forEach((city, index) => {
-      const state = city.state ? `${city.state}, ` : '';
-
-      const li = {
-        tag: 'li',
+      return daily;
+    },
+    manualInput() {
+      const model = {
+        tag: 'label',
+        className: 'city',
         c: {
-          city: {
+          title: {
             tag: 'span',
-            textContent: `${city.name}, ${state}${city.country}`,
+            textContent: 'Please, enter a city name',
           },
-          coords: {
-            tag: 'span',
-            textContent: 'coords: ',
-            c: {
-              link: {
-                tag: 'a',
-                textContent: `${city.lat}, ${city.lon}`,
-                href: `https://www.google.com/maps?q=${city.lat},+${city.lon}`,
-                target: '_blank',
-              },
-            },
+          cityInput: {
+            tag: 'input',
+            type: 'text',
+            className: 'cityInput',
+            id: 'cityInput',
+          },
+          submitBtn: {
+            tag: 'button',
+            id: 'submitBtn',
+            textContent: 'Ok',
           },
         },
       };
 
-      list.c.ul.c[index] = li;
-    });
+      return model;
+    },
+    citiesList() {
+      const list = {
+        tag: 'div',
+        c: {
+          ul: {
+            tag: 'ul',
+            className: 'list',
+            c: {},
+          },
+          backLayer: {
+            tag: 'div',
+            className: 'backLayer',
+          },
+        },
+      };
 
-    return list;
-  };
+      data.forEach((city, index) => {
+        const state = city.state ? `${city.state}, ` : '';
 
-  const errorMessage = (text) => {
-    const model = {
-      tag: 'span',
-      className: 'error',
-      textContent: text,
-    };
+        const li = {
+          tag: 'li',
+          c: {
+            city: {
+              tag: 'span',
+              textContent: `${city.name}, ${state}${city.country}`,
+            },
+            coords: {
+              tag: 'span',
+              textContent: 'coords: ',
+              c: {
+                link: {
+                  tag: 'a',
+                  textContent: `${city.lat}, ${city.lon}`,
+                  href: `https://www.google.com/maps?q=${city.lat},+${city.lon}`,
+                  target: '_blank',
+                },
+              },
+            },
+          },
+        };
 
-    return model;
-  };
+        list.c.ul.c[index] = li;
+      });
 
-  return {
-    mainPage,
-    hourlyCard,
-    dailyCard,
-    manualInput,
-    citiesList,
-    errorMessage,
+      return list;
+    },
+    errorMessage(text) {
+      const model = {
+        tag: 'span',
+        className: 'error',
+        textContent: text,
+      };
+
+      return model;
+    },
   };
 };
 
