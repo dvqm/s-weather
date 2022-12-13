@@ -352,12 +352,23 @@ const contentCreator = (ui, data) => {
     return list;
   };
 
+  const errorMessage = (text) => {
+    const model = {
+      tag: 'span',
+      className: 'error',
+      textContent: text,
+    };
+
+    return model;
+  };
+
   return {
     mainPage,
     hourlyCard,
     dailyCard,
     manualInput,
     citiesList,
+    errorMessage,
   };
 };
 
