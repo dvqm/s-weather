@@ -1,26 +1,19 @@
-import contentCreator from './contentCreator';
-import injectedContent from './injectedContent.json';
+const uiCreator = () => ({
+  node(ui) {
+    if (Object.keys(ui).length === 0) return '';
 
-const uiCreator = (data) => {
-  const nodeCreate = (ui) => {
     const element = structuredClone(ui);
 
     const { tag } = element;
-
-    delete element.tag;
-
-    if (element.c) delete element.c;
-
-    if (element.i) delete element.i;
-
-    if (element.s) delete element.s;
 
     const parent = document.createElement(tag);
 
     Object.entries(element).forEach((prop) => {
       const [key, value] = prop;
 
-      parent[key] = value;
+      if (key !== 'tag' || key !== 'c' || key !== 's') parent[key] = value;
+      if (key.includes('data-')) parent.setAttribute(key, value);
+      if (key === 'required' && value === 'false') parent.removeAttribute(key);
     });
 
     const blank = structuredClone(ui);
@@ -28,39 +21,17 @@ const uiCreator = (data) => {
     if (blank.c) {
       const { c } = blank;
 
-      Object.entries(c).forEach((node) => {
-        const [key, value] = node;
-
-        if (key === 'i') {
-          delete c[key];
-
-          Object.values(value).forEach((func) => {
-            const content = contentCreator(injectedContent, data);
-
-            const nodes = content[func]();
-
-            Object.values(nodes).forEach((el) => {
-              const child = nodeCreate(el);
-
-              parent.append(child);
-            });
-          });
-        } else {
-          const child = nodeCreate(value);
-
-          parent.append(child);
-        }
+      Object.values(c).forEach((block) => {
+        parent.append(uiCreator().node(block));
       });
     }
 
     return parent;
-  };
+  },
 
-  const render = (pointer, node) => {
-    pointer.append(node);
-  };
-
-  return { nodeCreate, render };
-};
+  render(pointer, ...nodes) {
+    pointer.append(...nodes);
+  },
+});
 
 export default uiCreator;
