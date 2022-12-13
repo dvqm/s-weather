@@ -305,10 +305,59 @@ const contentCreator = (ui, data) => {
     return model;
   };
 
+  const citiesList = () => {
+    const list = {
+      tag: 'div',
+      c: {
+        ul: {
+          tag: 'ul',
+          className: 'list',
+          c: {},
+        },
+        backLayer: {
+          tag: 'div',
+          className: 'backLayer',
+        },
+      },
+    };
+
+    data.forEach((city, index) => {
+      const state = city.state ? `${city.state}, ` : '';
+
+      const li = {
+        tag: 'li',
+        c: {
+          city: {
+            tag: 'span',
+            textContent: `${city.name}, ${state}${city.country}`,
+          },
+          coords: {
+            tag: 'span',
+            textContent: 'coords: ',
+            c: {
+              link: {
+                tag: 'a',
+                textContent: `${city.lat}, ${city.lon}`,
+                href: `https://www.google.com/maps?q=${city.lat},+${city.lon}`,
+                target: '_blank',
+              },
+            },
+          },
+        },
+      };
+
+      list.c.ul.c[index] = li;
+    });
+
+    return list;
+  };
+
   return {
     mainPage,
     hourlyCard,
     dailyCard,
+    manualInput,
+    citiesList,
   };
 };
 
