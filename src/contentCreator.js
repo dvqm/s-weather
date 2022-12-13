@@ -279,6 +279,32 @@ const contentCreator = (ui, data) => {
     return daily;
   };
 
+  const manualInput = () => {
+    const model = {
+      tag: 'label',
+      className: 'city',
+      c: {
+        title: {
+          tag: 'span',
+          textContent: 'Please, enter a city name',
+        },
+        cityInput: {
+          tag: 'input',
+          type: 'text',
+          className: 'cityInput',
+          id: 'cityInput',
+        },
+        submitBtn: {
+          tag: 'button',
+          id: 'submitBtn',
+          textContent: 'Ok',
+        },
+      },
+    };
+
+    return model;
+  };
+
   return {
     mainPage,
     hourlyCard,
@@ -287,12 +313,3 @@ const contentCreator = (ui, data) => {
 };
 
 export default contentCreator;
-
-// let result;
-// JSON.stringify(obj, (key, value) => {
-//   if (key === name) {
-//     result = value;
-//   }
-//   return value;
-// });
-// return JSON.parse(result);
