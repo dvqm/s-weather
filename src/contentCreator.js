@@ -302,7 +302,7 @@ const contentCreator = () => {
               },
               cityName: {
                 tag: 'span',
-                textContent: `${data.name} ${data.country}`,
+                textContent: `${data.common.name} ${data.common.country}`,
               },
               currentDate: {
                 tag: 'div',
@@ -329,12 +329,12 @@ const contentCreator = () => {
                   skyImg: {
                     tag: 'img',
                     id: 'skyImg',
-                    src: data.weather.icon,
+                    src: data.forecast.current.weather[0].icon,
                   },
                   sky: {
                     tag: 'span',
                     id: 'sky',
-                    textContent: `${data.weather.description}`,
+                    textContent: `${data.forecast.current.weather[0].description}`,
                   },
                 },
               },
@@ -350,22 +350,14 @@ const contentCreator = () => {
                         tag: 'span',
                         className: 'current',
                         id: 'current',
-                        textContent: k2c(data.main.temp),
+                        textContent: k2c(data.forecast.current.temp),
                       },
                       feelsLike: {
                         tag: 'span',
                         id: 'feelsLike',
-                        textContent: `feels like: ${k2c(data.main.feels_like)}`,
-                      },
-                      minimal: {
-                        tag: 'span',
-                        id: 'minimal',
-                        textContent: `min: ${k2c(data.main.temp_min)}`,
-                      },
-                      maximal: {
-                        tag: 'span',
-                        id: 'maximal',
-                        textContent: `max: ${k2c(data.main.temp_max)}`,
+                        textContent: `feels like: ${k2c(
+                          data.forecast.current.feels_like,
+                        )}`,
                       },
                     },
                   },
@@ -383,22 +375,22 @@ const contentCreator = () => {
                   pressure: {
                     tag: 'span',
                     id: 'pressure',
-                    textContent: `${data.main.pressure} hPa`,
+                    textContent: `${data.forecast.current.pressure} hPa`,
                   },
                   humidity: {
                     tag: 'span',
                     id: 'humidity',
-                    textContent: `${data.main.humidity} %`,
+                    textContent: `${data.forecast.current.humidity} %`,
                   },
                   windSpeed: {
                     tag: 'span',
                     id: 'windSpeed',
-                    textContent: `${data.wind.speed} m/s`,
+                    textContent: `${data.forecast.current.wind_speed} m/s`,
                   },
                   deg: {
                     tag: 'span',
                     id: 'deg',
-                    textContent: `${data.wind.deg} deg.`,
+                    textContent: `${data.forecast.current.wind_deg} deg.`,
                   },
                 },
               },
@@ -417,7 +409,10 @@ const contentCreator = () => {
                       time: {
                         tag: 'time',
                         id: 'sunrise',
-                        textContent: convertTime(data.sys.sunrise, 'hm'),
+                        textContent: convertTime(
+                          data.forecast.current.sunrise,
+                          'hm',
+                        ),
                       },
                     },
                   },
@@ -432,7 +427,10 @@ const contentCreator = () => {
                       time: {
                         tag: 'time',
                         id: 'sunset',
-                        textContent: convertTime(data.sys.sunset, 'hm'),
+                        textContent: convertTime(
+                          data.forecast.current.sunset,
+                          'hm',
+                        ),
                       },
                     },
                   },
@@ -453,6 +451,7 @@ const contentCreator = () => {
 
       return uiCreate.node(page);
     },
+
     manualInput() {
       const model = {
         tag: 'label',
@@ -478,6 +477,7 @@ const contentCreator = () => {
 
       return uiCreate.node(model);
     },
+
     citiesList(data) {
       const list = {
         tag: 'div',
@@ -508,6 +508,7 @@ const contentCreator = () => {
           c: {
             city: {
               tag: 'span',
+              className: 'cities',
               textContent: `${city.name}, ${state}${city.country}`,
             },
             coords: {
@@ -530,6 +531,7 @@ const contentCreator = () => {
 
       return uiCreate.node(list);
     },
+
     errorMessage(text) {
       const model = {
         tag: 'span',
