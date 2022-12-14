@@ -1,23 +1,7 @@
 import uiCreator from './uiCreator';
 
-const uiCreate = uiCreator();
-
 const contentCreator = () => {
-  const getRef = (name, obj) => {
-    let result;
-
-    const nameSearch = (prop) => {
-      if (name in prop) result = prop[name];
-
-      Object.values(prop).forEach((value) => {
-        if (typeof value === 'object') return nameSearch(value);
-        return result;
-      });
-    };
-    nameSearch(obj);
-
-    return result;
-  };
+  const uiCreate = uiCreator();
 
   const k2c = (temp) => {
     const kelvin = -273.16;
@@ -502,6 +486,12 @@ const contentCreator = () => {
             tag: 'ul',
             className: 'list',
             c: {},
+          },
+          cancelBtn: {
+            tag: 'button',
+            className: 'button',
+            id: 'cancel',
+            textContent: 'Cancel',
           },
           backLayer: {
             tag: 'div',
