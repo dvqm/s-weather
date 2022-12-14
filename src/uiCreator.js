@@ -1,37 +1,46 @@
-const uiCreator = () => ({
-  node(ui) {
-    if (Object.keys(ui).length === 0) return '';
+const uiCreator = () => {
+  const assemble =
+    (node) =>
+    (...handlers) =>
+      [...handlers].reduce((prev, next) => next(prev), node);
 
-    const element = structuredClone(ui);
+  return {
+    assemble,
+    node(ui) {
+      if (Object.keys(ui).length === 0) return '';
 
-    const { tag } = element;
+      const element = structuredClone(ui);
 
-    const parent = document.createElement(tag);
+      const { tag } = element;
 
-    Object.entries(element).forEach((prop) => {
-      const [key, value] = prop;
+      const parent = document.createElement(tag);
 
-      if (key !== 'tag' || key !== 'c' || key !== 's') parent[key] = value;
-      if (key.includes('data-')) parent.setAttribute(key, value);
-      if (key === 'required' && value === 'false') parent.removeAttribute(key);
-    });
+      Object.entries(element).forEach((prop) => {
+        const [key, value] = prop;
 
-    const blank = structuredClone(ui);
-
-    if (blank.c) {
-      const { c } = blank;
-
-      Object.values(c).forEach((block) => {
-        parent.append(uiCreator().node(block));
+        if (key !== 'tag' || key !== 'c' || key !== 's') parent[key] = value;
+        if (key.includes('data-')) parent.setAttribute(key, value);
+        if (key === 'required' && value === 'false')
+          parent.removeAttribute(key);
       });
-    }
 
-    return parent;
-  },
+      const blank = structuredClone(ui);
 
-  render(pointer, ...nodes) {
-    pointer.append(...nodes);
-  },
-});
+      if (blank.c) {
+        const { c } = blank;
+
+        Object.values(c).forEach((block) => {
+          parent.append(uiCreator().node(block));
+        });
+      }
+
+      return parent;
+    },
+
+    render(pointer, ...nodes) {
+      pointer.append(...nodes);
+    },
+  };
+};
 
 export default uiCreator;
