@@ -1,7 +1,7 @@
-const eventCreator = (nodes) => {
-  const node = nodes;
+const eventCreator = () => ({
+  slider(node, sets) {
+    const { offset } = sets;
 
-  const slider = (offset, sets) => {
     const shell = node.querySelector(`#${sets.shell}`);
 
     const content = node.querySelectorAll(`#${sets.shell}>.${sets.card}`);
@@ -44,7 +44,6 @@ const eventCreator = (nodes) => {
 
         [i, s, e] = [index, index, length];
       }
-
       shell.replaceChildren();
 
       for (let ind = s; ind < e; ind += 1) {
@@ -63,43 +62,31 @@ const eventCreator = (nodes) => {
     });
 
     return node;
-  };
+  },
 
-  const cityGrab = (sets, app) => {
+  cityInput(node, app, sets) {
     const input = node.querySelector(`#${sets.inp}`);
 
-    const actOnEnter = (event) => {
+    const action = () => {
+      if (sets.removePrev) node.remove();
+
+      return app(input.value);
+    };
+
+    input.addEventListener('keydown', (event) => {
       if (event.keyCode === 13) {
-        node.remove();
-
-        return app(event.target.value);
+        action();
       }
-    };
-
-    input.addEventListener('keydown', actOnEnter);
-
-    const actOnBtn = () => {
-      node.remove();
-
-      const result = app(input.value);
-
-      return result;
-    };
+    });
 
     if (sets.btn) {
       const btn = node.querySelector(`#${sets.btn}`);
 
-      btn.addEventListener('click', actOnBtn);
+      btn.addEventListener('click', action);
     }
 
     return node;
-  };
-
-  return {
-    slider,
-    cityGrab,
-    node,
-  };
-};
+  },
+});
 
 export default eventCreator;
