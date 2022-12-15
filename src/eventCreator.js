@@ -70,11 +70,17 @@ const eventCreator = () => ({
     const action = () => {
       if (sets.removePrev) node.remove();
 
+      const cities = document.querySelector('.citiesList');
+
+      if (cities) {
+        cities.remove();
+      }
+
       return app(input.value);
     };
 
     input.addEventListener('keydown', (event) => {
-      if (event.keyCode === 13) {
+      if (event.key === 'Enter') {
         action();
       }
     });
@@ -84,6 +90,46 @@ const eventCreator = () => ({
 
       btn.addEventListener('click', action);
     }
+
+    return node;
+  },
+
+  citiesList(node, list, app) {
+    const cancel = () => {
+      const input = document.querySelector('#cityInput');
+
+      if (input) input.value = '';
+
+      node.remove();
+    };
+
+    const cities = node.querySelectorAll('.cities');
+
+    cities.forEach((city, index) => {
+      city.addEventListener('click', () => {
+        app(list[index]);
+
+        cancel();
+      });
+    });
+
+    const backLayer = node.querySelector('.backLayer');
+
+    const cancelBtn = node.querySelector('#cancel');
+
+    backLayer.addEventListener('click', cancel);
+
+    cancelBtn.addEventListener('click', cancel);
+
+    document.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.key === 'Escape') {
+          cancel();
+        }
+      },
+      { once: true },
+    );
 
     return node;
   },
