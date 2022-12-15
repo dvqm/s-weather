@@ -275,6 +275,8 @@ const contentCreator = () => {
 
   return {
     forecastPage(data) {
+      const { current } = data.forecast;
+
       const page = {
         tag: 'div',
         className: 'container',
@@ -300,9 +302,22 @@ const contentCreator = () => {
                   },
                 },
               },
-              cityName: {
-                tag: 'span',
-                textContent: `${data.common.name} ${data.common.country}`,
+              cityData: {
+                tag: 'div',
+                c: {
+                  name: {
+                    tag: 'span',
+                    textContent: `${data.common.name}`,
+                  },
+                  state: {
+                    tag: 'span',
+                    textContent: `${data.common.state}`,
+                  },
+                  country: {
+                    tag: 'span',
+                    textContent: `${data.common.country}`,
+                  },
+                },
               },
               currentDate: {
                 tag: 'div',
@@ -329,12 +344,12 @@ const contentCreator = () => {
                   skyImg: {
                     tag: 'img',
                     id: 'skyImg',
-                    src: data.forecast.current.weather[0].icon,
+                    src: current.weather[0].icon,
                   },
                   sky: {
                     tag: 'span',
                     id: 'sky',
-                    textContent: `${data.forecast.current.weather[0].description}`,
+                    textContent: `${current.weather[0].description}`,
                   },
                 },
               },
@@ -350,14 +365,12 @@ const contentCreator = () => {
                         tag: 'span',
                         className: 'current',
                         id: 'current',
-                        textContent: k2c(data.forecast.current.temp),
+                        textContent: k2c(current.temp),
                       },
                       feelsLike: {
                         tag: 'span',
                         id: 'feelsLike',
-                        textContent: `feels like: ${k2c(
-                          data.forecast.current.feels_like,
-                        )}`,
+                        textContent: `feels like: ${k2c(current.feels_like)}`,
                       },
                     },
                   },
@@ -375,22 +388,22 @@ const contentCreator = () => {
                   pressure: {
                     tag: 'span',
                     id: 'pressure',
-                    textContent: `${data.forecast.current.pressure} hPa`,
+                    textContent: `${current.pressure} hPa`,
                   },
                   humidity: {
                     tag: 'span',
                     id: 'humidity',
-                    textContent: `${data.forecast.current.humidity} %`,
+                    textContent: `${current.humidity} %`,
                   },
                   windSpeed: {
                     tag: 'span',
                     id: 'windSpeed',
-                    textContent: `${data.forecast.current.wind_speed} m/s`,
+                    textContent: `${current.wind_speed} m/s`,
                   },
                   deg: {
                     tag: 'span',
                     id: 'deg',
-                    textContent: `${data.forecast.current.wind_deg} deg.`,
+                    textContent: `${current.wind_deg} deg.`,
                   },
                 },
               },
@@ -409,10 +422,7 @@ const contentCreator = () => {
                       time: {
                         tag: 'time',
                         id: 'sunrise',
-                        textContent: convertTime(
-                          data.forecast.current.sunrise,
-                          'hm',
-                        ),
+                        textContent: convertTime(current.sunrise, 'hm'),
                       },
                     },
                   },
@@ -427,10 +437,7 @@ const contentCreator = () => {
                       time: {
                         tag: 'time',
                         id: 'sunset',
-                        textContent: convertTime(
-                          data.forecast.current.sunset,
-                          'hm',
-                        ),
+                        textContent: convertTime(current.sunset, 'hm'),
                       },
                     },
                   },
@@ -445,6 +452,8 @@ const contentCreator = () => {
           },
         },
       };
+
+      if (!data.common.state) delete page.c.current.c.cityData.c.state;
 
       page.c.forecasts.c.hourly = hourlyCard(data);
       page.c.forecasts.c.daily = dailyCard(data);
@@ -481,7 +490,12 @@ const contentCreator = () => {
     citiesList(data) {
       const list = {
         tag: 'div',
+        className: 'citiesList',
         c: {
+          backLayer: {
+            tag: 'div',
+            className: 'backLayer',
+          },
           ul: {
             tag: 'ul',
             className: 'list',
@@ -492,10 +506,6 @@ const contentCreator = () => {
             className: 'button',
             id: 'cancel',
             textContent: 'Cancel',
-          },
-          backLayer: {
-            tag: 'div',
-            className: 'backLayer',
           },
         },
       };
