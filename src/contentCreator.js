@@ -304,6 +304,7 @@ const contentCreator = () => {
               },
               cityData: {
                 tag: 'div',
+                className: 'cityLocationInfo',
                 c: {
                   name: {
                     tag: 'span',
@@ -492,20 +493,19 @@ const contentCreator = () => {
         tag: 'div',
         className: 'citiesList',
         c: {
-          ul: {
-            tag: 'ul',
-            className: 'list',
-            c: {},
-          },
-          cancelBtn: {
-            tag: 'button',
-            className: 'button',
-            id: 'cancel',
-            textContent: 'Cancel',
+          title: {
+            tag: 'h3',
+            className: 'title',
+            textContent: 'Please choose one of the cities from the list.',
           },
           backLayer: {
             tag: 'div',
             className: 'backLayer',
+          },
+          ul: {
+            tag: 'ul',
+            className: 'list',
+            c: {},
           },
         },
       };
@@ -538,6 +538,21 @@ const contentCreator = () => {
 
         list.c.ul.c[index] = li;
       });
+
+      const cancelBtn = {
+        tag: 'li',
+        className: 'cancel',
+        c: {
+          cancel: {
+            tag: 'button',
+            className: 'button',
+            id: 'cancel',
+            textContent: 'Cancel',
+          },
+        },
+      };
+
+      list.c.ul.c.cancelBtn = cancelBtn;
 
       return uiCreate.node(list);
     },
