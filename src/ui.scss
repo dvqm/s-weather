@@ -104,7 +104,7 @@ html {
 }
 
 .cityLabel {
-  margin: 50px 0;
+  margin: 10px 0 15px;
 
   input {
     border-radius: 5px;
@@ -128,6 +128,17 @@ html {
   flex-flow: column wrap;
   justify-content: flex-start;
   align-items: center;
+
+  .cityLocationInfo {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-around;
+    align-items: center;
+
+    span {
+      margin-top: 5px;
+    }
+  }
 
   .sky {
     display: flex;
@@ -157,16 +168,16 @@ html {
       }
 
       .current {
-        font-size: 96px;
+        font-size: 6em;
       }
     }
 
     .measure {
-      font-size: 180px;
+      font-size: 8em;
       position: relative;
 
       sup {
-        font-size: 50px;
+        font-size: 0.3em;
         position: absolute;
         left: -20px;
       }
@@ -185,23 +196,21 @@ html {
       align-items: center;
 
       margin: 40px;
-      padding: 30px;
+      padding: 20px;
 
-      font-size: 30px;
+      font-size: 1.8em;
 
       border-radius: 30px;
     }
 
     .sunrise {
       color: yellow;
-      border: 1px solid yellow;
-      background-color: rgba(225, 255, 0, 0.2);
+      border: 1px solid lightyellow;
     }
 
     .sunset {
       color: darkblue;
       border: 2px solid darkblue;
-      background-color: rgba(0, 0, 255, 0.2);
     }
   }
 }
@@ -211,6 +220,7 @@ html {
   flex-flow: column nowrap;
   justify-content: center;
   align-items: space-between;
+  margin-top: -50px;
 
   .nextBtn,
   .prevBtn {
@@ -308,7 +318,6 @@ html {
       flex-flow: row wrap;
       justify-content: space-around;
 
-      margin: 0 10px;
       padding-top: 20px;
 
       $dayStanceUrl: url(./assets/dayTime.png);
@@ -386,5 +395,75 @@ html {
   time {
     text-align: center;
     margin: 5px 0;
+  }
+}
+
+.citiesList {
+  .title {
+    font-size: 2em;
+    color: black;
+    background-color: white;
+    border-radius: 10px;
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -67%);
+  }
+
+  .list {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+    width: 600px;
+    height: 250px;
+
+    padding: 15px;
+
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-around;
+  }
+
+  li {
+    color: black;
+    list-style-type: none;
+
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-around;
+  }
+
+  li:hover {
+    outline: 1px green solid;
+    border-radius: 5px;
+  }
+
+  span:first-child {
+    width: 300px;
+    cursor: pointer;
+  }
+
+  span:last-child {
+    width: 250px;
+  }
+
+  .cancel {
+    position: absolute;
+    bottom: -20%;
+    right: 40%;
+    transform: translate(-60%, -80%);
+  }
+
+  .backLayer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
   }
 }
