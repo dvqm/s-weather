@@ -492,10 +492,6 @@ const contentCreator = () => {
         tag: 'div',
         className: 'citiesList',
         c: {
-          backLayer: {
-            tag: 'div',
-            className: 'backLayer',
-          },
           ul: {
             tag: 'ul',
             className: 'list',
@@ -506,6 +502,10 @@ const contentCreator = () => {
             className: 'button',
             id: 'cancel',
             textContent: 'Cancel',
+          },
+          backLayer: {
+            tag: 'div',
+            className: 'backLayer',
           },
         },
       };
