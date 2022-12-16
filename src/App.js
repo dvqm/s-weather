@@ -54,7 +54,7 @@ const App = () => {
 
     const events = eventCreator();
 
-    const dailySliderEvent = (node) => {
+    const dailySliderEvent = (node) =>
       events.slider(node, {
         offset: 6,
         shell: 'hourlyCards',
@@ -62,9 +62,8 @@ const App = () => {
         prev: 'hourlyPrev',
         next: 'hourlyNext',
       });
-    };
 
-    const hourlySliderEvent = (node) => {
+    const hourlySliderEvent = (node) =>
       events.slider(node, {
         offset: 4,
         shell: 'dailyCards',
@@ -72,14 +71,12 @@ const App = () => {
         prev: 'dailyPrev',
         next: 'dailyNext',
       });
-    };
 
-    const cityInputEvent = (node) => {
+    const cityInputEvent = (node) =>
       events.cityInput(node, checkIfOneCity, {
         inp: 'cityInput',
         btn: 'submitBtn',
       });
-    };
 
     uiCreate.render(
       document.body,
