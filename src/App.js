@@ -57,7 +57,7 @@ const App = () => {
 
     const hourlyOffSet = window.innerWidth <= 480 ? 3 : 6;
 
-    const dailyOffSet = window.innerWidth === 480 ? 2 : 4;
+    const dailyOffSet = window.innerWidth <= 480 ? 2 : 4;
 
     const dailySliderEvent = (node) => events.slider(node, {
       offset: hourlyOffSet,
