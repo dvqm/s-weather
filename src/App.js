@@ -1,6 +1,7 @@
 import { GetLocation, LookDuplicates } from './weatherData';
 import uiCreator from './uiCreator';
 import './ui.scss';
+import './ui480px.scss';
 
 import contentCreator from './contentCreator';
 import eventCreator from './eventCreator';
@@ -54,29 +55,30 @@ const App = () => {
 
     const events = eventCreator();
 
-    const dailySliderEvent = (node) =>
-      events.slider(node, {
-        offset: 6,
-        shell: 'hourlyCards',
-        card: 'card',
-        prev: 'hourlyPrev',
-        next: 'hourlyNext',
-      });
+    const hourlyOffSet = window.innerWidth <= 480 ? 3 : 6;
 
-    const hourlySliderEvent = (node) =>
-      events.slider(node, {
-        offset: 4,
-        shell: 'dailyCards',
-        card: 'card',
-        prev: 'dailyPrev',
-        next: 'dailyNext',
-      });
+    const dailyOffSet = window.innerWidth === 480 ? 2 : 4;
 
-    const cityInputEvent = (node) =>
-      events.cityInput(node, checkIfOneCity, {
-        inp: 'cityInput',
-        btn: 'submitBtn',
-      });
+    const dailySliderEvent = (node) => events.slider(node, {
+      offset: hourlyOffSet,
+      shell: 'hourlyCards',
+      card: 'card',
+      prev: 'hourlyPrev',
+      next: 'hourlyNext',
+    });
+
+    const hourlySliderEvent = (node) => events.slider(node, {
+      offset: dailyOffSet,
+      shell: 'dailyCards',
+      card: 'card',
+      prev: 'dailyPrev',
+      next: 'dailyNext',
+    });
+
+    const cityInputEvent = (node) => events.cityInput(node, checkIfOneCity, {
+      inp: 'cityInput',
+      btn: 'submitBtn',
+    });
 
     uiCreate.render(
       document.body,
