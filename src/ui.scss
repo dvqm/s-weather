@@ -39,7 +39,6 @@ $iconStartSize: 200px 150px;
 }
 
 html {
-  height: 100vh;
   background-image: linear-gradient(243.18deg, #5cebd1 0%, #1a2b2c 100%);
   font-family: 'Roboto', sans-serif;
   color: #fff;
@@ -85,11 +84,15 @@ html {
   justify-content: space-around;
   overflow: hidden;
 
+  background-image: linear-gradient(243.18deg, #5cebd1 0%, #1a2b2c 100%);
+  font-family: 'Roboto', sans-serif;
+  color: #fff;
+
   .otherData {
     display: flex;
-    flex-direction: row wrap;
+    flex-flow: row nowrap;
     justify-content: space-around;
-    margin: 0 20px;
+    margin: 0 10px;
 
     span {
       @include weatherIcons(35px, -45px, 1, 1, 4);
@@ -117,6 +120,7 @@ html {
   flex-direction: column;
   align-items: center;
   font-size: 1.1em;
+
   & > * {
     margin-top: 10px;
   }
@@ -219,7 +223,7 @@ html {
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
-  align-items: space-between;
+  align-items: center;
   margin-top: -50px;
 
   .nextBtn,
@@ -246,6 +250,7 @@ html {
       margin-top: 5px;
     }
   }
+
   .nextBtn {
     transform: rotate(225deg);
   }
@@ -257,6 +262,7 @@ html {
 
 .hourly {
   margin-top: 30px;
+
   .card {
     display: flex;
     flex-flow: column nowrap;
@@ -326,13 +332,13 @@ html {
       span {
         margin: 0 10px;
         @include weatherIcons(
-          30px,
-          -5px,
-          1,
-          0,
-          4,
-          $dayStanceUrl,
-          $dayStanceSize
+                        30px,
+                        -5px,
+                        1,
+                        0,
+                        4,
+                        $dayStanceUrl,
+                        $dayStanceSize
         );
 
         &:before {
