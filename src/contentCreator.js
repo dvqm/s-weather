@@ -6,15 +6,10 @@ const contentCreator = () => {
   const k2c = (temp) => {
     const kelvin = -273.16;
 
-    const celsium = Math.round(temp + kelvin);
-
-    return celsium;
+    return Math.round(temp + kelvin);
   };
 
-  const add0 = (date, prop) => {
-    const with0 = `0${date[prop]()}`.slice(-2);
-    return with0;
-  };
+  const add0 = (date, prop) => `0${date[prop]()}`.slice(-2);
 
   const convertTime = (seconds, type) => {
     const date = new Date(seconds * 1000);
@@ -108,9 +103,7 @@ const contentCreator = () => {
 
     const { forecast } = data;
     forecast.hourly.forEach((ticket, i) => {
-      const temp = '<sup>0</sup>C,';
-
-      const card = {
+      hourly.c.wrapper.c[`h${i + 1}`] = {
         tag: 'div',
         className: 'card',
         c: {
@@ -129,7 +122,7 @@ const contentCreator = () => {
           },
           temperature: {
             tag: 'span',
-            innerHTML: `${k2c(ticket.temp)} ${temp}`,
+            innerHTML: `${k2c(ticket.temp)} &#8451`,
           },
           pressure: {
             tag: 'span',
@@ -149,8 +142,6 @@ const contentCreator = () => {
           },
         },
       };
-
-      hourly.c.wrapper.c[`h${i + 1}`] = card;
     });
 
     return hourly;
@@ -183,9 +174,7 @@ const contentCreator = () => {
     const { forecast } = data;
 
     forecast.daily.forEach((ticket, i) => {
-      const degIcon = '<sup>0</sup>';
-
-      const card = {
+      daily.c.wrapper.c[`d${i + 1}`] = {
         tag: 'div',
         className: 'card',
         c: {
@@ -222,19 +211,19 @@ const contentCreator = () => {
             c: {
               morning: {
                 tag: 'span',
-                innerHTML: `${k2c(ticket.temp.morn)} ${degIcon}`,
+                innerHTML: `${k2c(ticket.temp.morn)} &#8451`,
               },
               day: {
                 tag: 'span',
-                innerHTML: `${k2c(ticket.temp.day)} ${degIcon}`,
+                innerHTML: `${k2c(ticket.temp.day)} &#8451`,
               },
               evening: {
                 tag: 'span',
-                innerHTML: `${k2c(ticket.temp.eve)} ${degIcon}`,
+                innerHTML: `${k2c(ticket.temp.eve)} &#8451`,
               },
               night: {
                 tag: 'span',
-                innerHTML: `${k2c(ticket.temp.night)} ${degIcon}`,
+                innerHTML: `${k2c(ticket.temp.night)} &#8451`,
               },
             },
           },
@@ -266,8 +255,6 @@ const contentCreator = () => {
           },
         },
       };
-
-      daily.c.wrapper.c[`d${i + 1}`] = card;
     });
 
     return daily;
@@ -378,7 +365,7 @@ const contentCreator = () => {
                   measure: {
                     tag: 'span',
                     className: 'measure',
-                    innerHTML: '<sup>0</sup>C',
+                    innerHTML: '&#8451',
                   },
                 },
               },
@@ -513,7 +500,7 @@ const contentCreator = () => {
       data.forEach((city, index) => {
         const state = city.state ? `${city.state}, ` : '';
 
-        const li = {
+        list.c.ul.c[index] = {
           tag: 'li',
           c: {
             city: {
@@ -535,11 +522,9 @@ const contentCreator = () => {
             },
           },
         };
-
-        list.c.ul.c[index] = li;
       });
 
-      const cancelBtn = {
+      list.c.ul.c.cancelBtn = {
         tag: 'li',
         className: 'cancel',
         c: {
@@ -551,8 +536,6 @@ const contentCreator = () => {
           },
         },
       };
-
-      list.c.ul.c.cancelBtn = cancelBtn;
 
       return uiCreate.node(list);
     },
