@@ -2,6 +2,7 @@ import { GetLocation, LookDuplicates } from './weatherData';
 import uiCreator from './uiCreator';
 import './ui.scss';
 import './ui480px.scss';
+import './ui420px.scss';
 
 import contentCreator from './contentCreator';
 import eventCreator from './eventCreator';
@@ -55,12 +56,28 @@ const App = () => {
 
     const events = eventCreator();
 
-    const hourlyOffSet = window.innerWidth <= 480 ? 3 : 6;
+    let hourlyOffset;
+    let dailyOffset;
 
-    const dailyOffSet = window.innerWidth <= 480 ? 2 : 4;
+    switch (true) {
+      case window.innerWidth <= 480 && window.innerWidth > 420:
+        [hourlyOffset, dailyOffset] = [3, 2];
+
+        break;
+
+      case window.innerWidth <= 420:
+        [hourlyOffset, dailyOffset] = [2, 1];
+
+        break;
+
+      default:
+        [hourlyOffset, dailyOffset] = [6, 4];
+
+        break;
+    }
 
     const dailySliderEvent = (node) => events.slider(node, {
-      offset: hourlyOffSet,
+      offset: hourlyOffset,
       shell: 'hourlyCards',
       card: 'card',
       prev: 'hourlyPrev',
@@ -68,7 +85,7 @@ const App = () => {
     });
 
     const hourlySliderEvent = (node) => events.slider(node, {
-      offset: dailyOffSet,
+      offset: dailyOffset,
       shell: 'dailyCards',
       card: 'card',
       prev: 'dailyPrev',
