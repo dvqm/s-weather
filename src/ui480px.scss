@@ -1,0 +1,63 @@
+@media only screen and (max-width: 480px) {
+  .container {
+    display: flex;
+    flex-flow: column nowrap;
+  }
+
+  .cityLabel {
+    margin-top: 50px;
+  }
+
+  .cityInput,
+  .cityLabel button,
+  .cancel button
+  {
+    font-size: 1.2em;
+  }
+
+  .dispRow {
+    flex-flow: column nowrap;
+
+    .card {
+      margin: 25px 1px;
+    }
+  }
+
+  .daily {
+    margin-top: 50px;
+  }
+
+  .forecasts {
+    margin-top: 0;
+    margin-bottom: 4em;
+
+    .prevBtn {
+      transform: rotate(135deg);
+    }
+
+    .nextBtn {
+      transform: rotate(315deg);
+    }
+  }
+
+  .citiesList {
+    .title {
+      font-size: 1.5em;
+      text-align: center;
+      left: 10%;
+      transform: translate(-5%, -90%);
+    }
+
+    .list {
+      width: 450px;
+    }
+
+    .cancel {
+
+      bottom: -25%;
+      right: 30%;
+      transform: translate(-70%, 0);
+    }
+
+  }
+}
