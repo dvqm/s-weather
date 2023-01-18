@@ -12,12 +12,17 @@
   }
 
   .container {
+    width: 100%;
+
     .otherData {
       flex-wrap: wrap;
-      justify-content: center;
+      justify-content: space-between;
+      margin-right: -100px;
 
       span {
-        margin: 10px 60px;
+        flex: 1;
+        flex-basis: calc(50% - 10px);
+        margin: 15px 5px;
       }
     }
   }
@@ -25,6 +30,18 @@
   .dispRow {
     .card {
       margin: 25px 15px;
+    }
+  }
+
+  .citiesList {
+    .list {
+      width: 340px;
+    }
+
+    .cancel {
+      bottom: -25%;
+      right: 20%;
+      transform: translate(-95%, 0);
     }
   }
 }
