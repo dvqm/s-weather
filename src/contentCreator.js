@@ -9,467 +9,538 @@ const contentCreator = () => {
     return Math.round(temp + kelvin);
   };
 
-  const add0 = (date, prop) => `0${date[prop]()}`.slice(-2);
+  const setTime = (seconds, tz, template) => {
 
-  const convertTime = (seconds, type) => {
-    const date = new Date(seconds * 1000);
+    const tzName = (tzOffsetSec) => {
+      const tzOffsetHr = tzOffsetSec / 3600;
 
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const halfHrTZs = {
+        '-8.75': 'Australia/Eucla',
+        '-9.5': 'Australia/Darwin',
+        '-10.5': 'Australia/Adelaide',
+        '-11.5': 'Australia/Lord_Howe',
+        '3.5': 'Asia/Tehran',
+        '4.5': 'Asia/Kabul',
+        '5.5': 'Asia/Kolkata',
+        '6.5': 'Asia/Rangoon',
+        '9.5': 'Pacific/Marquesas',
+        '12.75': 'Pacific/Chatham',
+        '13.75': 'Pacific/Apia'
+      };
 
-    let string = '';
+      if (tzOffsetHr in halfHrTZs) {
+        return halfHrTZs[tzOffsetHr];
+      } else {
+        return `Etc/GMT${tzOffsetSec >= 0 ? '-' : '+'}${Math.abs(tzOffsetHr)}`;
+      }
+    }
 
-    if (type.includes('d')) string += `${add0(date, 'getDate')}`;
+    const convert24to00 = (date) => {
+      return date.map((item) => {
+        if (item.type === 'hour' && item.value === '24') {
+          item.value = '00';
+        }
 
-    if (type.includes('w')) string += ` ${days[date.getDay()]}`;
+        return item;
+      });
+    }
 
-    if (type.includes('wh')) string += ' ';
+    const date = convert24to00(new Intl.DateTimeFormat('en', {
+      timeZone: tzName(tz),
+      year: 'numeric',
+      month: 'short',
+      weekday: 'short',
+      day: '2-digit',
+      hour: 'numeric',
+      hour12: false,
+      minute: '2-digit',
+    }).formatToParts(new Date(seconds * 1000)));
 
-    if (type.includes('h')) string += `${add0(date, 'getHours')}`;
-
-    if (type.includes('m')) string += ` : ${add0(date, 'getMinutes')}`;
-
-    if (type.includes('s')) string += ` : ${add0(date, 'getSeconds')}`;
-
-    return string;
-  };
-
-  const setDate = () => {
-    const d = new Date();
-
-    const mNames = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-
-    return `
-      ${d.getDate()} 
-      ${mNames[d.getMonth()]} 
-      ${d.getFullYear()}
-      `;
-  };
-
-  const setTime = () => {
-    const d = new Date();
-
-    const days = [
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-    ];
-    return `
-      ${days[d.getDay()]} 
-      ${add0(d, 'getHours')} : 
-      ${add0(d, 'getMinutes')}
-      `;
-  };
-
-  const hourlyCard = (data) => {
-    const hourly = {
-      tag: 'div',
-      className: 'hourly dispRow',
-      c: {
-        previous: {
-          tag: 'button',
-          id: 'hourlyPrev',
-          className: 'prevBtn',
-        },
-        wrapper: {
-          tag: 'div',
-          className: 'cards',
-          id: 'hourlyCards',
-          c: {},
-        },
-        next: {
-          tag: 'button',
-          id: 'hourlyNext',
-          className: 'nextBtn',
-        },
-      },
+    const findPart = (part) => {
+      return date.find((item) => item.type === part);
     };
 
-    const { forecast } = data;
-    forecast.hourly.forEach((ticket, i) => {
-      hourly.c.wrapper.c[`h${i + 1}`] = {
-        tag: 'div',
-        className: 'card',
-        c: {
-          hour: {
-            tag: 'time',
-            textContent: convertTime(ticket.dt, 'whm'),
-          },
-          icon: {
-            tag: 'img',
-            src: ticket.weather[0].icon,
-            icon: ticket.weather[0].description,
-          },
-          descr: {
-            tag: 'span',
-            textContent: ticket.weather[0].main,
-          },
-          temperature: {
-            tag: 'span',
-            innerHTML: `${k2c(ticket.temp)} &#8451`,
-          },
-          pressure: {
-            tag: 'span',
-            textContent: `${ticket.pressure} hPa`,
-          },
-          humidity: {
-            tag: 'span',
-            textContent: `${ticket.humidity} %`,
-          },
-          windSpeed: {
-            tag: 'span',
-            textContent: `${ticket.wind_speed} m/s`,
-          },
-          deg: {
-            tag: 'span',
-            textContent: `${ticket.wind_deg} deg.`,
-          },
-        },
-      };
-    });
 
-    return hourly;
+    return template
+      .replace('YY', findPart('year').value)
+      .replace('MM', findPart('month').value)
+      .replace('DD', findPart('day').value)
+      .replace('hh', findPart('hour').value)
+      .replace('mm', findPart('minute').value)
+      .replace('WW', findPart('weekday').value);
+
   };
 
   const dailyCard = (data) => {
-    const daily = {
-      tag: 'div',
-      className: 'daily dispRow',
-      c: {
-        previous: {
-          tag: 'button',
-          id: 'dailyPrev',
-          className: 'prevBtn',
-        },
-        wrapper: {
-          tag: 'div',
-          className: 'cards',
-          id: 'dailyCards',
-          c: {},
-        },
-        next: {
-          tag: 'button',
-          id: 'dailyNext',
-          className: 'nextBtn',
-        },
-      },
+    const tz = data.forecast.city.timezone;
+
+    const groupPredictions = (predictions) => {
+      const days = predictions.reduce((grouped, prediction) => {
+        const localTime = setTime(prediction.dt, tz, 'MM-DD-WW');
+        if (!grouped[localTime]) {
+          grouped[localTime] = [];
+        }
+        grouped[localTime].push(prediction);
+
+        return grouped;
+      }, {});
+
+      return Object.values(days);
     };
 
-    const { forecast } = data;
+    const fullForecast = groupPredictions(data.forecast.list);
 
-    forecast.daily.forEach((ticket, i) => {
-      daily.c.wrapper.c[`d${i + 1}`] = {
-        tag: 'div',
-        className: 'card',
-        c: {
-          date: {
-            tag: 'time',
-            textContent: convertTime(ticket.dt, 'dw'),
-          },
-          icon: {
-            tag: 'img',
-            src: ticket.weather[0].icon,
-            alt: ticket.weather[0].description,
-          },
-          descr: {
-            tag: 'span',
-            textContent: ticket.weather[0].description,
-          },
-          sun: {
-            tag: 'div',
-            className: 'sun',
-            c: {
-              sunrise: {
-                tag: 'time',
-                textContent: convertTime(ticket.sunrise, 'hm'),
+    const daily = {
+      tag: 'div',
+      className: 'col-lg-5',
+      c: [
+        {
+          tag: 'div',
+          className: 'days',
+          id: 'dailyCards',
+          c: [
+            ...fullForecast.map((card, i) => ({
+              tag: 'div',
+              className: 'mt-5 d-flex flex-column justify-content-center align-items-stretch',
+              c: [{
+                tag: 'h4',
+                className: 'h4 text-center',
+                textContent: setTime(card[0].dt, tz, 'DD WW'),
               },
-              sunset: {
-                tag: 'time',
-                textContent: convertTime(ticket.sunset, 'hm'),
+              {
+                tag: 'table',
+                className: 'table align-middle id-day-table',
+                c: [
+                  {
+                    tag: 'thead',
+                    c: [
+                      {
+                        tag: 'tr',
+                        c: [
+                          {
+                            tag: 'th',
+                            c: [
+                              {
+                                tag: 'div',
+                                className: 'my-2 mx-auto time',
+                              }
+                            ],
+                          },
+                          {
+                            tag: 'th',
+                            c: [
+                              {
+                                tag: 'div',
+                                className: 'my-2 mx-auto clouds',
+                              }
+                            ],
+                          },
+                          {
+                            tag: 'th',
+                            c: [
+                              {
+                                tag: 'div',
+                                className: 'my-2 mx-auto thermometer',
+                              }
+                            ],
+                          },
+                          {
+                            tag: 'th',
+                            c: [
+                              {
+                                tag: 'div',
+                                className: 'my-2 mx-auto pressure',
+                              }
+                            ],
+                          },
+                          {
+                            tag: 'th',
+                            c: [
+                              {
+                                tag: 'div',
+                                className: 'my-2 mx-auto humidity',
+                              }
+                            ],
+                          },
+                          {
+                            tag: 'th',
+                            c: [
+                              {
+                                tag: 'div',
+                                className: 'my-2 mx-auto wind',
+                              }
+                            ],
+                          },
+                        ],
+                      },
+                    ]
+                  },
+                  {
+                    tag: 'tbody',
+                    c: [
+                      ...card.map((item) => ({
+                        tag: 'tr',
+                        c: [
+                          {
+                            tag: 'td',
+                            c: [
+                              {
+                                tag: 'span',
+                                className: 'm-1 text-nowrap',
+                                textContent: setTime(item.dt, tz, 'hh:mm'),
+                              }
+                            ],
+                          },
+                          {
+                            tag: 'td',
+                            c: [
+                              {
+                                tag: 'div',
+                                className: 'm-2 d-flex flex-column align-items-center justify-content-center',
+                                c: [
+                                  {
+                                    tag: 'img',
+                                    className: 'icon',
+                                    src: item.weather[0].icon,
+                                  },
+                                  {
+                                    tag: 'span',
+                                    className: 'text-center small',
+                                    textContent: item.weather[0].description,
+                                  },
+                                ]
+                              }
+                            ],
+                          },
+                          {
+                            tag: 'td',
+                            c: [
+                              {
+                                tag: 'div',
+                                className: 'm-2 d-flex flex-column justify-content-center align-items-center',
+                                c: [
+                                  {
+                                    tag: 'span',
+                                    className: 'fs-4',
+                                    innerHTML: `${k2c(item.main.temp)} &#8451`,
+                                  },
+                                  {
+                                    tag: 'span',
+                                    className: 'small text-nowrap',
+                                    innerHTML: `Feels like: ${k2c(item.main.feels_like)}&deg;`,
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                          {
+                            tag: 'td',
+                            c: [
+                              {
+                                tag: 'span',
+                                className: 'm-2 fs-6 text-nowrap',
+                                textContent: `${item.main.pressure} hPa`,
+                              }
+
+                            ]
+                          },
+                          {
+                            tag: 'td',
+                            c: [
+                              {
+                                tag: 'span',
+                                className: 'm-2 fs-6 text-nowrap',
+                                textContent: `${item.main.humidity} %`,
+                              }
+                            ]
+                          },
+                          {
+                            tag: 'td',
+                            c: [
+                              {
+                                tag: 'div',
+                                className: 'm-2 d-flex flex-column align-items-center justify-content-center',
+                                c: [
+                                  {
+                                    tag: 'span',
+                                    className: 'small text-nowrap',
+                                    textContent: `${item.wind.speed} m/s`,
+                                  },
+                                  {
+                                    tag: 'span',
+                                    className: 'small text-nowrap',
+                                    textContent: `${item.wind.deg} deg`,
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      })),
+                    ],
+                  },
+                ],
               },
-            },
-          },
-          temperatures: {
-            tag: 'div',
-            className: 'predict',
-            c: {
-              morning: {
-                tag: 'span',
-                innerHTML: `${k2c(ticket.temp.morn)} &#8451`,
-              },
-              day: {
-                tag: 'span',
-                innerHTML: `${k2c(ticket.temp.day)} &#8451`,
-              },
-              evening: {
-                tag: 'span',
-                innerHTML: `${k2c(ticket.temp.eve)} &#8451`,
-              },
-              night: {
-                tag: 'span',
-                innerHTML: `${k2c(ticket.temp.night)} &#8451`,
-              },
-            },
-          },
-          otherData: {
-            tag: 'div',
-            className: 'other',
-            c: {
-              pressure: {
-                tag: 'span',
-                textContent: `${ticket.pressure} hPa`,
-              },
-              humidity: {
-                tag: 'span',
-                textContent: `${ticket.humidity} %`,
-              },
-              windSpeed: {
-                tag: 'span',
-                textContent: `${ticket.wind_speed} m/s`,
-              },
-              deg: {
-                tag: 'span',
-                textContent: `${ticket.wind_deg} deg.`,
-              },
-              uvi: {
-                tag: 'span',
-                textContent: ticket.uvi,
-              },
-            },
-          },
+              i === 0 || fullForecast.length - 1 === i ? '' : {
+                tag: 'button',
+                className: 'btn  id-day-btn',
+                textContent: 'see more...',
+              }
+              ],
+            })),
+          ],
         },
-      };
-    });
+      ],
+    };
 
     return daily;
   };
 
   return {
     forecastPage(data) {
-      const { current } = data.forecast;
-
+      const current = data.weather;
+      const tz = current.timezone;
       const page = {
         tag: 'div',
-        className: 'container',
-        c: {
-          current: {
+        className: 'row',
+        id: 'forecastPage',
+        c: [
+          {
             tag: 'div',
-            className: 'currentTemp',
-            c: {
-              cityLabel: {
-                tag: 'label',
-                className: 'cityLabel',
-                c: {
-                  cityInput: {
-                    tag: 'input',
-                    type: 'text',
-                    className: 'cityInput',
-                    id: 'cityInput',
-                  },
-                  submitBtn: {
-                    tag: 'button',
-                    id: 'submitBtn',
-                    textContent: 'Ok',
-                  },
-                },
-              },
-              cityData: {
+            className: 'col-lg-5',
+            c: [
+              {
                 tag: 'div',
-                className: 'cityLocationInfo',
-                c: {
-                  name: {
-                    tag: 'span',
-                    textContent: `${data.common.name}`,
-                  },
-                  state: {
-                    tag: 'span',
-                    textContent: `${data.common.state}`,
-                  },
-                  country: {
-                    tag: 'span',
-                    textContent: `${data.common.country}`,
-                  },
-                },
-              },
-              currentDate: {
-                tag: 'div',
-                className: 'time',
-                c: {
-                  date: {
-                    tag: 'time',
-                    className: 'date',
-                    id: 'date',
-                    textContent: setDate(),
-                  },
-                  time: {
-                    tag: 'time',
-                    className: 'time',
-                    id: 'time',
-                    textContent: setTime(),
-                  },
-                },
-              },
-              skyWrapper: {
-                tag: 'div',
-                className: 'sky',
-                c: {
-                  skyImg: {
-                    tag: 'img',
-                    id: 'skyImg',
-                    src: current.weather[0].icon,
-                  },
-                  sky: {
-                    tag: 'span',
-                    id: 'sky',
-                    textContent: `${current.weather[0].description}`,
-                  },
-                },
-              },
-              tempWrapper: {
-                tag: 'div',
-                className: 'tempWrapper',
-                c: {
-                  temperatures: {
+                className: 'ui-right-panel col-lg-5',
+                c: [
+                  {
                     tag: 'div',
-                    className: 'temperatures',
-                    c: {
-                      current: {
+                    className: 'm-5 form-group',
+                    c: [
+                      {
+                        tag: 'div',
+                        className: 'd-flex align-items-center',
+                        c: [
+                          {
+                            tag: 'input',
+                            type: 'text',
+                            className: 'fs-4 form-control mx-1',
+                            id: 'cityInput',
+                            placeholder: 'City name',
+                          },
+                          {
+                            tag: 'button',
+                            type: 'submit',
+                            className: 'fs-4 btn btn-primary mx-1',
+                            id: 'submitBtn',
+                            textContent: 'Ok',
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    tag: 'div',
+                    className: 'my-2 d-flex flex-wrap justify-content-center',
+                    id: 'cityLocationInfo',
+                    c: [
+                      {
                         tag: 'span',
-                        className: 'current',
-                        id: 'current',
-                        textContent: k2c(current.temp),
+                        className: 'h4 mx-1',
+                        textContent: `${data.common.name}`,
                       },
-                      feelsLike: {
+                      data.common.state ? {
+                        className: 'h4',
                         tag: 'span',
-                        id: 'feelsLike',
-                        textContent: `feels like: ${k2c(current.feels_like)}`,
+                        textContent: `${data.common.state}`,
+                      } : '',
+                      {
+                        tag: 'span',
+                        className: 'h4 mx-1',
+                        textContent: `${data.common.country}`,
                       },
-                    },
+                    ],
                   },
-                  measure: {
-                    tag: 'span',
-                    className: 'measure',
-                    innerHTML: '&#8451',
-                  },
-                },
-              },
-              otherData: {
-                tag: 'div',
-                className: 'otherData',
-                c: {
-                  pressure: {
-                    tag: 'span',
-                    id: 'pressure',
-                    textContent: `${current.pressure} hPa`,
-                  },
-                  humidity: {
-                    tag: 'span',
-                    id: 'humidity',
-                    textContent: `${current.humidity} %`,
-                  },
-                  windSpeed: {
-                    tag: 'span',
-                    id: 'windSpeed',
-                    textContent: `${current.wind_speed} m/s`,
-                  },
-                  deg: {
-                    tag: 'span',
-                    id: 'deg',
-                    textContent: `${current.wind_deg} deg.`,
-                  },
-                },
-              },
-              sun: {
-                tag: 'div',
-                className: 'sun',
-                c: {
-                  sunrise: {
+                  {
                     tag: 'div',
-                    className: 'sunrise',
-                    c: {
-                      name: {
-                        tag: 'h4',
-                        textContent: 'Sunrise',
-                      },
-                      time: {
+                    className: 'd-flex flex-column align-items-center',
+                    c: [
+                      {
                         tag: 'time',
-                        id: 'sunrise',
-                        textContent: convertTime(current.sunrise, 'hm'),
+                        className: 'h5 my-1',
+                        id: 'date',
+                        textContent: setTime(current.dt, tz, 'WW, MM DD'),
                       },
-                    },
+                      {
+                        tag: 'time',
+                        className: 'h5 my-1',
+                        id: 'time',
+                        textContent: setTime(current.dt, tz, 'hh:mm'),
+                      },
+                    ],
                   },
-                  sunset: {
+                  {
                     tag: 'div',
-                    className: 'sunset',
-                    c: {
-                      name: {
-                        tag: 'h4',
-                        textContent: 'Sunset',
+                    className: 'd-flex flex-column align-items-center',
+                    c: [
+                      {
+                        tag: 'div',
+                        className: 'crop-borders',
+                        c: [
+                          {
+                            tag: 'img',
+                            className: 'img-scale',
+                            id: 'skyImg',
+                            src: current.weather[0].icon,
+                          },
+                        ],
                       },
-                      time: {
-                        tag: 'time',
-                        id: 'sunset',
-                        textContent: convertTime(current.sunset, 'hm'),
+                      {
+                        tag: 'span',
+                        className: 'h4',
+                        id: 'sky',
+                        textContent: `${current.weather[0].description}`,
                       },
-                    },
+                    ],
                   },
-                },
+                  {
+                    tag: 'div',
+                    className: 'my-4 d-flex flex-column align-items-center',
+                    c: [
+                      {
+                        tag: 'span',
+                        className: 'h5',
+                        innerHTML: `feels like: ${k2c(
+                          current.main.feels_like,
+                        )} &#8451`,
+                      },
+                      {
+                        tag: 'span',
+                        className: 'h1 icon-thermometer',
+                        innerHTML: `${k2c(current.main.temp)} &#8451`,
+                      },
+                      {
+                        tag: 'span',
+                        className: 'h5',
+                        innerHTML: `min: ${k2c(current.main.temp_min)}&#8451 max: ${k2c(current.main.temp_max)}&#8451`,
+                      }
+                    ],
+                  },
+                  {
+                    tag: 'div',
+                    className: 'my-4 d-flex flex-row flex-wrap justify-content-center align-items-center',
+                    c: [
+                      {
+                        tag: 'span',
+                        className: 'h5 icon-pressure',
+                        id: 'pressure',
+                        textContent: `${current.main.pressure} hPa`,
+                      },
+                      {
+                        tag: 'span',
+                        className: 'h5 icon-humidity',
+                        id: 'humidity',
+                        textContent: `${current.main.humidity} %`,
+                      },
+                      {
+                        tag: 'span',
+                        className: 'd-flex flex-row align-items-center',
+                        c: [
+                          {
+                            tag: 'span',
+                            className: 'icon-wind ',
+                          },
+                          {
+                            tag: 'span',
+                            className: 'd-flex flex-column align-items-center',
+                            c: [
+                              {
+                                tag: 'span',
+                                className: 'h6',
+                                id: 'windSpeed',
+                                textContent: `${current.wind.speed} m/s`,
+                              },
+                              {
+                                tag: 'span',
+                                className: 'h6',
+                                id: 'deg',
+                                textContent: `${current.wind.deg} deg.`,
+                              },
+                            ],
+                          },
+                        ]
+                      },
+                    ],
+                  },
+                  {
+                    tag: 'div',
+                    className: 'my-5 d-flex flex-row justify-content-center align-items-center',
+                    c: [
+                      {
+                        tag: 'div',
+                        className: 'mx-5 d-flex flex-column align-items-center',
+                        c: [
+                          {
+                            tag: 'div',
+                            className: 'icon-sunrise ',
+                          },
+                          {
+                            tag: 'time',
+                            className: 'h4',
+                            id: 'sunrise',
+                            textContent: `${setTime(current.sys.sunrise, tz, 'hh:mm')}`,
+                          },
+                        ],
+                      },
+                      {
+                        tag: 'div',
+                        className: 'mx-5 d-flex flex-column align-items-center',
+                        c: [
+                          {
+                            tag: 'div',
+                            className: 'icon-sunset ',
+                          },
+                          {
+                            tag: 'time',
+                            className: 'h4',
+                            id: 'sunset',
+                            textContent: `${setTime(current.sys.sunset, tz, 'hh:mm')}`,
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
               },
-            },
+            ],
           },
-          forecasts: {
-            tag: 'div',
-            className: 'forecasts',
-            c: {},
-          },
-        },
+          dailyCard(data),
+        ]
       };
-
-      if (!data.common.state) delete page.c.current.c.cityData.c.state;
-
-      page.c.forecasts.c.hourly = hourlyCard(data);
-      page.c.forecasts.c.daily = dailyCard(data);
 
       return uiCreate.node(page);
     },
 
     manualInput() {
       const model = {
-        tag: 'label',
-        className: 'city',
-        c: {
-          title: {
-            tag: 'span',
-            textContent: 'Please, enter a city name',
-          },
-          cityInput: {
+        tag: 'div',
+        className: 'd-flex flex-row justify-content-center align-items-center ui-fullscreen ui-padding',
+        id: 'manualInput',
+        c: [
+          {
             tag: 'input',
             type: 'text',
-            className: 'cityInput',
+            placeholder: 'City name',
+            className: 'fs-4 form-control mx-1',
             id: 'cityInput',
           },
-          submitBtn: {
+          {
             tag: 'button',
+            className: 'fs-4 btn btn-primary',
             id: 'submitBtn',
             textContent: 'Ok',
           },
-        },
+        ],
       };
 
       return uiCreate.node(model);
@@ -478,63 +549,52 @@ const contentCreator = () => {
     citiesList(data) {
       const list = {
         tag: 'div',
-        className: 'citiesList',
-        c: {
-          title: {
-            tag: 'h3',
-            className: 'title',
-            textContent: 'Please choose one of the cities from the list.',
-          },
-          backLayer: {
+        className: 'd-flex flex-column justify-content-center align-items-center ui-fullscreen ui-fixed ui-zindex-1',
+        id: 'citiesList',
+        c: [
+          {
             tag: 'div',
-            className: 'backLayer',
+            className: 'd-flex flex-column justify-content-center align-items-center ui-fullscreen ui-fixed ui-primary-bg',
+            id: 'backdrop',
           },
-          ul: {
+          {
             tag: 'ul',
-            className: 'list',
-            c: {},
+            className: 'list-group fw-bold text-center',
+            c: [
+              ...data.map((city) => ({
+                tag: 'li',
+                className: 'mb-2 list-group-item d-flex justify-content-between align-items-center',
+                c: [
+                  {
+                    tag: 'button',
+                    className: 'p-2 btn btn-light text-decoration-none p-0 border-0 cities',
+                    textContent: `${city.name}, ${city.state ? `${city.state}, ` : ''}${city.country}`,
+                  },
+                  {
+                    tag: 'span',
+                    className: 'mx-3',
+                    textContent: 'Coords: ',
+                    c: [
+                      {
+                        tag: 'a',
+                        className: 'btn btn-link',
+                        textContent: `${city.lat}, ${city.lon}`,
+                        href: `https://www.google.com/maps?q=${city.lat},+${city.lon}`,
+                        target: '_blank',
+                      },
+                    ],
+                  },
+                ],
+              })),
+            ],
           },
-        },
-      };
-
-      data.forEach((city, index) => {
-        const state = city.state ? `${city.state}, ` : '';
-
-        list.c.ul.c[index] = {
-          tag: 'li',
-          c: {
-            city: {
-              tag: 'span',
-              className: 'cities',
-              textContent: `${city.name}, ${state}${city.country}`,
-            },
-            coords: {
-              tag: 'span',
-              textContent: 'coords: ',
-              c: {
-                link: {
-                  tag: 'a',
-                  textContent: `${city.lat}, ${city.lon}`,
-                  href: `https://www.google.com/maps?q=${city.lat},+${city.lon}`,
-                  target: '_blank',
-                },
-              },
-            },
-          },
-        };
-      });
-
-      list.c.ul.c.cancelBtn = {
-        tag: 'li',
-        className: 'cancel',
-        c: {
-          cancel: {
+          {
             tag: 'button',
-            className: 'button',
+            className: 'btn btn-secondary ui-zindex-1',
             id: 'cancel',
             textContent: 'Cancel',
           },
-        },
+        ],
       };
 
       return uiCreate.node(list);
@@ -543,11 +603,11 @@ const contentCreator = () => {
     errorMessage(text) {
       const model = {
         tag: 'span',
-        className: 'error',
+        className: 'error-container bg-danger text-white position-absolute p-2 rounded',
         textContent: text,
       };
 
-      return uiCreate.node(model);
+      return text === '' || text === undefined ? '' : uiCreate.node(model);
     },
   };
 };
