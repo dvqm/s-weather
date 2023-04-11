@@ -1,76 +1,87 @@
 const eventCreator = () => ({
-  slider(node, sets) {
-    const { offset } = sets;
+  manageRows(node, sets) {
+    const {dayBtns, dayTables} = sets;
 
-    const shell = node.querySelector(`#${sets.shell}`);
+    const btns = node.querySelectorAll(dayBtns);
 
-    const content = node.querySelectorAll(`#${sets.shell}>.${sets.card}`);
+    const tablesOrigin = [...node.querySelectorAll(dayTables)].slice(1, -1);
 
-    const contentCopy = content;
+    const tables = [...tablesOrigin];
 
-    const prevBtn = node.querySelector(`#${sets.prev}`);
+    const trsStorage = new Map();
 
-    const nextBtn = node.querySelector(`#${sets.next}`);
+    const prepareRows = (nodes) => {
+      nodes.forEach((table) => {
+        const tbody = table.querySelector('tbody');
 
-    content.forEach((item) => item.remove());
+        const trs = tbody.querySelectorAll('tr');
 
-    let i = 0;
+        // Store the original trs for this table
+        trsStorage.set(table, [...trs]);
 
-    const ticker = (onset, reverse = false) => {
-      let [s, e] = [0, 0];
+        [...trs].forEach((tr, i) => {
+          if (i !== 0 && i !== 4) tr.remove();
+        });
 
-      if (reverse) {
-        [s, e] = [onset, onset - offset];
+      });
+    }
 
-        i -= offset;
-      } else {
-        [s, e] = [onset, onset + offset];
+    prepareRows(tables);
 
-        i += offset;
-      }
-
-      if (e < s) [s, e] = [onset - offset, onset];
-
-      if (s < offset) {
-        [s, e, i] = [0, 0 + offset, 0 + offset];
-      }
-
-      if (s + offset >= contentCopy.length) {
-        const { length } = contentCopy;
-
-        let index = length - (length % offset);
-
-        if (index === length) index = length - offset;
-
-        [i, s, e] = [index, index, length];
-      }
-      shell.replaceChildren();
-
-      for (let ind = s; ind < e; ind += 1) {
-        shell.append(contentCopy[ind]);
-      }
+    const rowsManipulation = (i) => {
+      const tbody = tables[i].querySelector('tbody');
+      return {
+        recoveredTrs: trsStorage.get(tablesOrigin[i]),
+        tbody: tbody,
+        trs: tbody.querySelectorAll('tr'),
+      };
     };
 
-    ticker(i);
+    const showRows = (btn, i) => {
+      const { recoveredTrs, tbody, trs } = rowsManipulation(i);
 
-    nextBtn.addEventListener('click', () => {
-      ticker(i);
-    });
+      trs.forEach((tr) => tr.remove());
 
-    prevBtn.addEventListener('click', () => {
-      ticker(i, true);
-    });
+      recoveredTrs.forEach((tr) => {
+
+        tbody.append(tr);
+      });
+
+      btn.textContent = '...see less';
+
+      btn.addEventListener('click', () => hideRows(btn, i), { once: true });
+    }
+
+    const hideRows = (btn, i) => {
+      const { recoveredTrs, tbody, trs } = rowsManipulation(i);
+
+      trs.forEach((tr) => tr.remove());
+
+      recoveredTrs.forEach((time) => {
+        const hour = time.firstChild.firstChild;
+
+        hour.textContent === '00:00' || hour.textContent === '12:00' ? tbody.append(time) : ''
+      });
+
+      btn.textContent = 'see more...';
+
+      btn.addEventListener('click', () => showRows(btn, i), { once: true });
+    };
+
+    btns.forEach((btn, i) =>
+      btn.addEventListener('click', () => showRows(btn, i), { once: true }),
+    );
 
     return node;
   },
 
   cityInput(node, app, sets) {
-    const input = node.querySelector(`#${sets.inp}`);
+    const input = node.querySelector(sets.inp);
 
     const action = () => {
-      if (sets.removePrev) node.remove();
+      const cities = document.querySelector('#citiesList');
 
-      const cities = document.querySelector('.citiesList');
+      if (input.value === '') return;
 
       if (cities) {
         cities.remove();
@@ -86,7 +97,7 @@ const eventCreator = () => ({
     });
 
     if (sets.btn) {
-      const btn = node.querySelector(`#${sets.btn}`);
+      const btn = node.querySelector(sets.btn);
 
       btn.addEventListener('click', action);
     }
@@ -98,7 +109,7 @@ const eventCreator = () => ({
     const cancel = () => {
       const input = document.querySelector('#cityInput');
 
-      if (input) input.value = '';
+      input.value = '';
 
       node.remove();
     };
@@ -113,11 +124,11 @@ const eventCreator = () => ({
       });
     });
 
-    const backLayer = node.querySelector('.backLayer');
-
     const cancelBtn = node.querySelector('#cancel');
 
-    backLayer.addEventListener('click', cancel);
+    const backdrop = node.querySelector('#backdrop');
+
+    backdrop.addEventListener('click', cancel);
 
     cancelBtn.addEventListener('click', cancel);
 
