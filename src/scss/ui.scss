@@ -1,0 +1,152 @@
+@import '~bootstrap/scss/bootstrap';
+$time-ico: url('../assets/smartwatch.svg');
+$clouds-ico: url('../assets/clouds.svg');
+$thermometer-ico: url('../assets/thermometer-sun.svg');
+$wind-ico: url('../assets/wind.svg');
+$droplet-ico: url('../assets/droplet.svg');
+$pressure-ico: url('../assets/cloud-download.svg');
+$sunrise-ico: url('../assets/sunrise.svg');
+$sunset-ico: url('../assets/sunset.svg');
+
+$primary-bg: linear-gradient(180deg, rgba(0, 179, 255, 1) 0%, rgba(255, 255, 30, 0.7) 90%);
+
+$icons-size: 30px;
+
+  body {
+  overflow-x: hidden;
+  background-image: $primary-bg;
+  font-family: 'Roboto', sans-serif;
+}
+
+.time {
+  background: center/contain $time-ico no-repeat;
+  width: $icons-size;
+  height: $icons-size;
+}
+
+.clouds {
+  background: center/contain $clouds-ico no-repeat;
+  width: $icons-size;
+  height: $icons-size;
+}
+
+.thermometer {
+  background: center/contain $thermometer-ico no-repeat;
+  width: $icons-size;
+  height: $icons-size;
+}
+
+.pressure {
+  background: center/contain $pressure-ico no-repeat;
+  width: $icons-size;
+  height: $icons-size;
+}
+
+.wind {
+  background: center/contain $wind-ico no-repeat;
+  width: $icons-size;
+  height: $icons-size;
+}
+
+.humidity {
+  background: center/contain $droplet-ico no-repeat;
+  width: $icons-size;
+  height: $icons-size;
+}
+
+.icon {
+  width: calc($icons-size *2);
+  height: calc($icons-size *2);
+}
+
+.crop-borders {
+  overflow: hidden;
+  width: calc($icons-size *4);
+  height: calc($icons-size *4);
+}
+
+.img-scale {
+  width: calc($icons-size * 6);
+  height: auto;
+  margin-left: -$icons-size;
+  margin-top: -$icons-size;
+}
+
+@mixin icon-before($ico) {
+  &::before {
+    content: '';
+    background: center/contain $ico no-repeat;
+    display: inline-block;
+    position: relative;
+    transform: translateY(15%);
+    width: $icons-size;
+    height: $icons-size;
+    margin: 0 10px 0 30px;
+  }
+}
+
+.icon-pressure {
+  @include icon-before($pressure-ico);
+}
+.icon-thermometer {
+  @include icon-before($thermometer-ico);
+  &::before {
+    margin: 0;
+  }
+}
+.icon-wind {
+  @include icon-before($wind-ico);
+}
+.icon-humidity {
+  @include icon-before($droplet-ico);
+}
+
+
+@mixin icon($ico) {
+    background: center/contain $ico no-repeat;
+    width: $icons-size;
+    height: $icons-size;
+}
+
+.icon-sunrise {
+  @include icon($sunrise-ico);
+}
+
+.icon-sunset {
+  @include icon($sunset-ico);
+}
+
+.ui-padding {
+  padding: 0 20%;
+}
+
+.ui-fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+.ui-zindex-1 {
+  z-index: 1;
+}
+
+.ui-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.ui-primary-bg {
+  background-image: $primary-bg;
+}
+
+@media (min-width: 992px) {
+  .ui-right-panel {
+    position: fixed;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .ui-right-panel {
+    position: static;
+  }
+}
