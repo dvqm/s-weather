@@ -1,8 +1,6 @@
 import { GetLocation, LookDuplicates } from './weatherData';
 import uiCreator from './uiCreator';
-import './ui.scss';
-import './ui480px.scss';
-import './ui420px.scss';
+import './scss/ui.scss';
 
 import contentCreator from './contentCreator';
 import eventCreator from './eventCreator';
@@ -22,27 +20,30 @@ const App = () => {
     add(text = 'Loading...') {
       const model = {
         tag: 'div',
-        className: 'loader',
-        c: {
-          phrase: {
+        id: 'loader',
+        className: 'h2 ui-fullscreen d-flex justify-content-center align-items-center',
+        c: [
+          {
             tag: 'span',
             textContent: text,
           },
-        },
+        ],
       };
-      uiCreate.render(document.body, uiCreate.node(model));
+      uiCreate.render('append')(document.body, uiCreate.node(model));
     },
     remove() {
-      const element = document.querySelector('.loader');
+      const element = document.querySelector('#loader');
 
       if (element) element.remove();
     },
   });
 
   const errorMessage = (text) => {
+    if (text === '' || text === undefined) return;
+
     const error = contentCreator().errorMessage(text);
 
-    uiCreate.render(document.body, error);
+    uiCreate.render('prepend')(document.body, error);
 
     setTimeout(() => {
       error.remove();
@@ -52,56 +53,28 @@ const App = () => {
   const forecastPage = (data) => {
     loader().remove();
 
+    uiRemove('#manualInput', '#forecastPage');
+
     const content = contentCreator().forecastPage(data);
 
     const events = eventCreator();
 
-    let hourlyOffset;
-    let dailyOffset;
+    const manageRows = (node) =>
+      events.manageRows(node, {
+        dayBtns: '.id-day-btn',
+        dayTables: '.id-day-table',
+      });
 
-    switch (true) {
-      case window.innerWidth <= 480 && window.innerWidth > 420:
-        [hourlyOffset, dailyOffset] = [3, 2];
+    const cityInputEvent = (node) =>
+      events.cityInput(node, checkIfOneCity, {
+        inp: '#cityInput',
+        btn: '#submitBtn',
+      });
 
-        break;
-
-      case window.innerWidth <= 420:
-        [hourlyOffset, dailyOffset] = [2, 1];
-
-        break;
-
-      default:
-        [hourlyOffset, dailyOffset] = [6, 4];
-
-        break;
-    }
-
-    const dailySliderEvent = (node) => events.slider(node, {
-      offset: hourlyOffset,
-      shell: 'hourlyCards',
-      card: 'card',
-      prev: 'hourlyPrev',
-      next: 'hourlyNext',
-    });
-
-    const hourlySliderEvent = (node) => events.slider(node, {
-      offset: dailyOffset,
-      shell: 'dailyCards',
-      card: 'card',
-      prev: 'dailyPrev',
-      next: 'dailyNext',
-    });
-
-    const cityInputEvent = (node) => events.cityInput(node, checkIfOneCity, {
-      inp: 'cityInput',
-      btn: 'submitBtn',
-    });
-
-    uiCreate.render(
+    uiCreate.render('append')(
       document.body,
       uiCreate.assemble(content)(
-        dailySliderEvent,
-        hourlySliderEvent,
+        manageRows,
         cityInputEvent,
       ),
     );
@@ -115,26 +88,23 @@ const App = () => {
     const forecast = async (city) => {
       const data = await GetLocation(city);
 
-      uiRemove('.city', '.container');
-
       loader().add();
 
       forecastPage(data);
     };
 
-    uiCreate.render(document.body, events.citiesList(content, list, forecast));
+    uiCreate.render('prepend')(document.body, events.citiesList(content, list, forecast));
   };
 
   const checkIfOneCity = async (city) => {
     loader().remove();
 
     const data = await LookDuplicates(city);
+
     if (data.length === 0) {
       errorMessage('No such city found. Please, check the name.');
     } else if (data.length === 1) {
       const forecast = await GetLocation(data[0]);
-
-      uiRemove('.city', '.container');
 
       forecastPage(forecast);
     } else {
@@ -157,7 +127,7 @@ const App = () => {
     forecastPage(forecast);
   };
 
-  const manualInputPage = (error) => {
+  const manualInputPage = (error = '') => {
     loader().remove();
 
     errorMessage(error.message);
@@ -166,11 +136,11 @@ const App = () => {
 
     const events = eventCreator();
 
-    uiCreate.render(
+    uiCreate.render('append')(
       document.body,
       events.cityInput(content, checkIfOneCity, {
-        inp: 'cityInput',
-        btn: 'submitBtn',
+        inp: '#cityInput',
+        btn: '#submitBtn',
       }),
     );
   };
@@ -185,6 +155,7 @@ const App = () => {
         getLocationFromBrowser,
         manualInputPage,
       );
+
     },
   };
 };
