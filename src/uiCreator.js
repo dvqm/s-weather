@@ -1,11 +1,16 @@
 const uiCreator = () => {
-  const assemble =
-    (node) =>
+  const assemble = (node) =>
     (...handlers) =>
       [...handlers].reduce((prev, next) => next(prev), node);
 
+
+    const render = (operation = 'append') => (pointer, ...nodes) => {
+      pointer[operation](...nodes);
+    };
+
   return {
     assemble,
+    render,
     node(ui) {
       if (Object.keys(ui).length === 0) return '';
 
@@ -18,7 +23,15 @@ const uiCreator = () => {
       Object.entries(element).forEach((prop) => {
         const [key, value] = prop;
 
-        if (key !== 'tag' || key !== 'c' || key !== 's') parent[key] = value;
+        if (key !== 'tag' && key !== 'c' && key !== 's') {
+          if (key !== 'className'
+            && key !== 'id'
+            && key !== 'textContent'
+            && key !== 'innerHTML'
+          ) {
+            parent.setAttribute(key, value);
+          } else parent[key] = value;
+        }
         if (key.includes('data-')) parent.setAttribute(key, value);
         if (key === 'required' && value === 'false')
           parent.removeAttribute(key);
@@ -29,16 +42,12 @@ const uiCreator = () => {
       if (blank.c) {
         const { c } = blank;
 
-        Object.values(c).forEach((block) => {
+        c.forEach((block) => {
           parent.append(uiCreator().node(block));
         });
       }
 
       return parent;
-    },
-
-    render(pointer, ...nodes) {
-      pointer.append(...nodes);
     },
   };
 };
