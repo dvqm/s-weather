@@ -1,4 +1,6 @@
 # Weather App
+[Github pages](https://ocnm.github.io/sb-weather/)
+
 Responsive application to check weather worldwide.
 
 * Open Weather API.
@@ -13,5 +15,3 @@ Responsive application to check weather worldwide.
 * SCSS.
 * Webpack.
 * async / await.
-
-[Github pages](https://ocnm.github.io/sb-weather/)
