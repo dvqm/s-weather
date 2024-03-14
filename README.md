@@ -1,5 +1,5 @@
 # Weather App
-[Github pages](https://ocnm.github.io/sb-weather/)
+[Github pages](https://dvqm.github.io/s-weather/)
 
 Responsive application to check weather worldwide.
 
